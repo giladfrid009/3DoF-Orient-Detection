@@ -17,7 +17,7 @@ class CameraSimulator:
 
         self.manipulated_object = ManipulatedObject(self.model, self.data)
         self.manipulated_object.set_orientation_euler([0, 0, 0])
-        self.manipulated_object.zero_velocities()
+        #self.manipulated_object.zero_velocities()
 
         self.renderer = mj.Renderer(self.model, resolution[0], resolution[1])
         self.depth_renderer = mj.Renderer(self.model, resolution[0], resolution[1])
