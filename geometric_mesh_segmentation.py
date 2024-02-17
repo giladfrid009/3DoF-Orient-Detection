@@ -1,16 +1,12 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from scipy.spatial.transform import Rotation
 from pytorch3d.structures import Meshes
 from pytorch3d.io import load_obj
-from pytorch3d.renderer import PerspectiveCameras, FoVPerspectiveCameras
-from pytorch3d.renderer.mesh import Textures, MeshRenderer, MeshRasterizer, SoftSilhouetteShader
-from pytorch3d.renderer.mesh.shader import SoftPhongShader
+from pytorch3d.renderer import FoVPerspectiveCameras
+from pytorch3d.renderer.mesh import MeshRasterizer
 from pytorch3d.renderer.mesh.rasterizer import RasterizationSettings
 from pytorch3d.renderer.mesh.textures import TexturesVertex
 from pytorch3d.transforms import euler_angles_to_matrix
-from torch.nn import functional as F
 from dataclasses import dataclass
 from typing import List, Union
 
@@ -31,7 +27,6 @@ class CameraParameters:
     @property
     def aspect_ratio(self):
         return 1
-        # TODO remove?
 
     @staticmethod
     def batch_camera_parameters(cameras_parameters: List["CameraParameters"]):

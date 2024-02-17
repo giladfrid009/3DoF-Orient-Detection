@@ -1,6 +1,4 @@
 from segment_anything import SamPredictor, sam_model_registry
-import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 
 

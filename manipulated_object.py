@@ -21,9 +21,7 @@ class ManipulatedObject:
         self.data.qpos[self.jntadr : self.jntadr + 3] = position
 
     def zero_velocities(self):
-        self.data.qvel[self.jntadr : self.jntadr + 7] = [
-            0.0,
-        ] * 7
+        self.data.qvel[self.jntadr : self.jntadr + 7] = [0.0] * 6
 
     def set_orientation_quat(self, orientation):
         assert len(orientation) == 4

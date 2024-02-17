@@ -26,7 +26,6 @@ cam_fov = 45
 cam_znear, cam_zfar = 0.1, 100
 
 table_height = 1
-# TODO move to stable pose set file.
 obj_positions = [
     [0, 0, 0.08 + table_height],
     [0, 0, 0.08 + table_height],
@@ -42,7 +41,7 @@ max_depth = 1.5
 
 if __name__ == "__main__":
 
-    cam_sim = CameraSimulator(resolution=(cam_resy, cam_resx), fovy=cam_fov, world_file="data/world_mug_v2.xml")
+    cam_sim = CameraSimulator(resolution=(cam_resy, cam_resx), fovy=cam_fov, world_file="data/world_mug_sim.xml")
 
     # generate 4 images and 4 depth maps for four poses and plot them side by side:
     images, depth_images = [], []

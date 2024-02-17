@@ -109,7 +109,6 @@ def compute_depth_squared_distance_in_intersection(depth1, depth2, mask1, mask2)
     :param mask2:
     :return: mean depth distance
     """
-    # TODO: normalize depth?
     # make sure masks_pred are binary:
     mask1 = mask1 > 0
     mask2 = mask2 > 0

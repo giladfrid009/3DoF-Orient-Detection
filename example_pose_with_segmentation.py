@@ -1,3 +1,4 @@
+import cv2 as cv
 import numpy as np
 import torch
 from camera_simulator import CameraSimulator
@@ -25,13 +26,14 @@ cam_znear, cam_zfar = 0.1, 100
 table_height = 1
 obj_position_actual = [0, 0, 0.08 + table_height]
 obj_orientation_actual = [2.1, 0, 1.57]
-# TODO move to stable pose set file.
 obj_positions = [
     [0, 0, 0.08 + table_height],
     [0, 0, 0.08 + table_height],
     [0, 0, 0.12 + table_height],
     [0, 0, 0.12 + table_height],
 ]
+
+# range is [0 - 2pi, -pi/2 - pi/2, 0 - 2pi]
 obj_orientations = [[2.1, 0, 1.57], [0, 0, 1.57], [0, -0.2, 0], [3.14, -0.2, 0]]
 
 if __name__ == "__main__":
@@ -40,7 +42,17 @@ if __name__ == "__main__":
     cam_sim = CameraSimulator(
         resolution=(cam_resy, cam_resx),
         fovy=cam_fov,
+        world_file="data/world_mug_sim.xml"
     )
+
+    random_orientations = np.random.uniform(0, 2 * np.pi, size=(1000, 3))
+    random_position = np.asanyarray(obj_position_actual) + np.random.uniform(-0.1, 0.1, size=(1000, 3))
+    for position, orient in zip(random_position, random_orientations):
+        cam_sim.set_manipulated_object_position(position.tolist())
+        cam_sim.set_manipulated_object_orientation_euler(orient)
+        im = cam_sim.render(cam_frame_R, cam_pos)
+        cv.imshow("img", im)
+        cv.waitKey(0)
 
     # generate 4 images for four poses and plot them side by side:
     images = []
