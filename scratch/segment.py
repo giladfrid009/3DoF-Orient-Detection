@@ -17,16 +17,18 @@ def show_mask(mask, ax, random_color=False):
 def show_points(coords, labels, ax, marker_size=375):
     pos_points = coords[labels == 1]
     neg_points = coords[labels == 0]
-    ax.scatter(pos_points[:, 0], pos_points[:, 1], color='green', marker='*', s=marker_size, edgecolor='white',
-               linewidth=1.25)
-    ax.scatter(neg_points[:, 0], neg_points[:, 1], color='red', marker='*', s=marker_size, edgecolor='white',
-               linewidth=1.25)
+    ax.scatter(
+        pos_points[:, 0], pos_points[:, 1], color="green", marker="*", s=marker_size, edgecolor="white", linewidth=1.25
+    )
+    ax.scatter(
+        neg_points[:, 0], neg_points[:, 1], color="red", marker="*", s=marker_size, edgecolor="white", linewidth=1.25
+    )
 
 
 def show_box(box, ax):
     x0, y0 = box[0], box[1]
     w, h = box[2] - box[0], box[3] - box[1]
-    ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0, 0, 0, 0), lw=2))
+    ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor="green", facecolor=(0, 0, 0, 0), lw=2))
 
 
 im = cv2.imread("mug.png")
@@ -39,7 +41,7 @@ plt.imshow(im)
 
 points_fg = None
 points_labels = None
-points_fg = np.array([[110,110]])
+points_fg = np.array([[110, 110]])
 points_labels = np.array([1])
 # show_points(points_fg, points_labels, plt.gca())
 # plt.show()
@@ -58,13 +60,13 @@ masks, scores, logits = predictor.predict(
 
 # plot image and mask_pose1:
 for i, (mask, score) in enumerate(zip(masks, scores)):
-    plt.figure(figsize=(10,10))
+    plt.figure(figsize=(10, 10))
     plt.imshow(im)
     show_mask(mask, plt.gca())
     show_points(points_fg, points_labels, plt.gca())
     # show_box(box[0], plt.gca())
     plt.title(f"Mask {i+1}, Score: {score:.3f}", fontsize=18)
-    plt.axis('off')
+    plt.axis("off")
     plt.show()
 
 # plot all mask_pose1:
