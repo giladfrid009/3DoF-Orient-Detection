@@ -23,10 +23,10 @@ class CameraSimulator:
         self.depth_renderer = mj.Renderer(self.model, resolution[0], resolution[1])
         self.depth_renderer.enable_depth_rendering()
 
-    def set_manipulated_object_position(self, position):
+    def set_object_position(self, position):
         self.manipulated_object.set_position(position)
 
-    def set_manipulated_object_orientation_euler(self, orientation):
+    def set_object_orientation_euler(self, orientation):
         self.manipulated_object.set_orientation_euler(orientation)
 
     def render(self, rotation_matrix, position):

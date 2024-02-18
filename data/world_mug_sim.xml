@@ -10,7 +10,7 @@
 
     <visual>
         <map fogstart="3" fogend="5" znear="0.05"/>
-        <quality shadowsize="2048"/>
+        <quality shadowsize="0"/>
         <scale framelength="0.1"
                framewidth="0.005"
                contactwidth="0.1"
@@ -33,11 +33,10 @@
         </body>
 
         <!--Lighting parameters-->
-        <light name="light3" mode="targetbody" target="manipulated_object" directional="true" pos="1 -1 3" />
+        <light name="light3" mode="targetbody" target="manipulated_object" directional="true" pos="0 0 6"/>
 
         <!--Camera parameters-->
         <camera name="my_camera" pos="2 -2 3" xyaxes="0.658 0.728 0 -0.487 0.458 0.743"/>
-<!--        <camera pos="2.298 -2.376 3.451" xyaxes="0.679 0.734 0.000 -0.479 0.443 0.758"/>-->
     </worldbody>
 
 </mujoco>

@@ -48,8 +48,8 @@ if __name__ == "__main__":
     random_orientations = np.random.uniform(0, 2 * np.pi, size=(1000, 3))
     random_position = np.asanyarray(obj_position_actual) + np.random.uniform(-0.1, 0.1, size=(1000, 3))
     for position, orient in zip(random_position, random_orientations):
-        cam_sim.set_manipulated_object_position(position.tolist())
-        cam_sim.set_manipulated_object_orientation_euler(orient)
+        cam_sim.set_object_position(position.tolist())
+        cam_sim.set_object_orientation_euler(orient)
         im = cam_sim.render(cam_frame_R, cam_pos)
         cv.imshow("img", im)
         cv.waitKey(0)
@@ -58,8 +58,8 @@ if __name__ == "__main__":
     images = []
     fig, axs = plt.subplots(1, 4, figsize=(20, 5))
     for obj_position, obj_orientation, ax in zip(obj_positions, obj_orientations, axs):
-        cam_sim.set_manipulated_object_position(obj_position)
-        cam_sim.set_manipulated_object_orientation_euler(obj_orientation)
+        cam_sim.set_object_position(obj_position)
+        cam_sim.set_object_orientation_euler(obj_orientation)
         im = cam_sim.render(cam_frame_R, cam_pos)
         ax.imshow(im)
         ax.axis("off")
@@ -91,8 +91,8 @@ if __name__ == "__main__":
     plot_grid_segmentation_masks(np.array([dummy_image] * 4), masks, mask_alpha=0.95, color=[255, 30, 30])
 
     # use sam to segment actual image and show it
-    cam_sim.set_manipulated_object_position(obj_position_actual)
-    cam_sim.set_manipulated_object_orientation_euler(obj_orientation_actual)
+    cam_sim.set_object_position(obj_position_actual)
+    cam_sim.set_object_orientation_euler(obj_orientation_actual)
     im_actual = cam_sim.render(cam_frame_R, cam_pos)
 
     sam = SAMSegmentation()
