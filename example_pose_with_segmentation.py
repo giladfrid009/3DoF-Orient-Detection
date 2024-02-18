@@ -96,7 +96,7 @@ if __name__ == "__main__":
     im_actual = cam_sim.render(cam_frame_R, cam_pos)
 
     sam = SAMSegmentation()
-    mask_sam, score = sam.segment_image_center(im_actual, best_out_of_3=True)
+    mask_sam, score = sam.segment_center(im_actual)
     plot_segmentation_mask(im_actual, mask_sam, mask_alpha=0.95, color=[30, 255, 30])
     plot_segmentation_mask(dummy_image, mask_sam, mask_alpha=0.95, color=[30, 255, 30])
     iou = compute_masks_IOU_batch(torch.from_numpy(mask_sam).unsqueeze(0), torch.cat(masks))

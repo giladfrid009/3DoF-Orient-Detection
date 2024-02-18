@@ -96,7 +96,7 @@ if __name__ == "__main__":
     depth_actual = cam_sim.render_depth(cam_frame_R, cam_pos)
 
     sam = SAMSegmentation()
-    mask_sam, score = sam.segment_image_center(im_actual, best_out_of_3=True)
+    mask_sam, score = sam.segment_center(im_actual)
     plot_segmentation_mask(im_actual, mask_sam, mask_alpha=0.95, color=[30, 255, 30])
 
     mask_sam_torch = torch.from_numpy(mask_sam).unsqueeze(0)
