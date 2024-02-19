@@ -45,15 +45,6 @@ if __name__ == "__main__":
         world_file="data/world_mug_sim.xml"
     )
 
-    random_orientations = np.random.uniform(0, 2 * np.pi, size=(1000, 3))
-    random_position = np.asanyarray(obj_position_actual) + np.random.uniform(-0.1, 0.1, size=(1000, 3))
-    for position, orient in zip(random_position, random_orientations):
-        cam_sim.set_object_position(position.tolist())
-        cam_sim.set_obj_orient_euler(orient)
-        im = cam_sim.render(cam_frame_R, cam_pos)
-        cv.imshow("img", im)
-        cv.waitKey(0)
-
     # generate 4 images for four poses and plot them side by side:
     images = []
     fig, axs = plt.subplots(1, 4, figsize=(20, 5))
