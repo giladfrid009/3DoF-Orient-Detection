@@ -64,15 +64,8 @@
     <worldbody>
         <camera
             name="my_camera"
-            pos="2 -2 3"
-            quat="0.834834 0.371916 0.165165 0.370743" />
-        <light
-            name="light"
-            target="manipulated_object"
-            pos="0 0 6"
-            dir="0 0 -1"
-            directional="true"
-            mode="targetbody" />
+            pos="0 0 0"
+            xyaxes="1 0 0 0 1 0"/>
         <body
             name="manipulated_object">
             <joint

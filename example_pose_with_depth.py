@@ -48,7 +48,7 @@ if __name__ == "__main__":
     fig, axs = plt.subplots(2, 4, figsize=(20, 10))
     for obj_position, obj_orientation, ax_im, ax_depth in zip(obj_positions, obj_orientations, axs[0, :], axs[1, :]):
         cam_sim.set_object_position(obj_position)
-        cam_sim.set_object_orientation_euler(obj_orientation)
+        cam_sim.set_obj_orient_euler(obj_orientation)
         im = cam_sim.render(cam_frame_R, cam_pos)
         im_depth = cam_sim.render_depth(cam_frame_R, cam_pos)
         im_depth[im_depth > max_depth] = -1
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     # use sam to segment actual image and show it
     cam_sim.set_object_position(obj_position_actual)
-    cam_sim.set_object_orientation_euler(obj_orientation_actual)
+    cam_sim.set_obj_orient_euler(obj_orientation_actual)
     im_actual = cam_sim.render(cam_frame_R, cam_pos)
     depth_actual = cam_sim.render_depth(cam_frame_R, cam_pos)
 
