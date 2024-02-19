@@ -17,29 +17,29 @@ class CameraSimulator:
 
         self.manipulated_object = ManipulatedObject(self.model, self.data)
         self.manipulated_object.set_orientation_euler([0, 0, 0])
-        #self.manipulated_object.zero_velocities()
 
         self.renderer = mj.Renderer(self.model, resolution[0], resolution[1])
         self.depth_renderer = mj.Renderer(self.model, resolution[0], resolution[1])
         self.depth_renderer.enable_depth_rendering()
 
-    def set_object_position(self, position):
-        self.manipulated_object.set_position(position)
+    def set_object_position(self, obj_pos: list | tuple):
+        obj_pos = list(obj_pos)
+        self.manipulated_object.set_position(obj_pos)
 
     def set_object_orientation_euler(self, orientation):
         self.manipulated_object.set_orientation_euler(orientation)
 
-    def render(self, rotation_matrix, position):
+    def render(self, cam_rot, cam_pos):
         mj.mj_forward(self.model, self.data)
-        self.data.cam_xpos = position
-        self.data.cam_xmat = rotation_matrix.flatten()
+        self.data.cam_xpos = cam_pos
+        self.data.cam_xmat = cam_rot.flatten()
         self.renderer.update_scene(self.data, camera=0)
         return self.renderer.render()
 
-    def render_depth(self, rotation_matrix, position):
+    def render_depth(self, cam_rot, cam_pos):
         mj.mj_forward(self.model, self.data)
-        self.data.cam_xpos = position
-        self.data.cam_xmat = rotation_matrix.flatten()
+        self.data.cam_xpos = cam_pos
+        self.data.cam_xmat = cam_rot.flatten()
         self.depth_renderer.update_scene(self.data, camera=0)
         return self.depth_renderer.render()
 

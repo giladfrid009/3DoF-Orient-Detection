@@ -1,42 +1,88 @@
-
 <mujoco model="mug_world">
-    <compiler angle="radian"
-              inertiafromgeom="true"/>
-    <option timestep="2e-3"
-            iterations="10"
-            tolerance="1e-10"
-            impratio="20"/>
-    <size njmax="600" nconmax="150" nstack="300000"/>
-
+    <compiler angle="radian" />
+    <option
+        impratio="0"
+        tolerance="1e-10" 
+        gravity="0 0 0"
+        magnetic="0 0 0"
+        o_friction="0 0 0 0 0"
+        iterations="10">
+        <flag
+            constraint="disable"
+            equality="disable"
+            frictionloss="disable"
+            limit="disable"
+            contact="disable"
+            passive="disable"
+            gravity="disable"
+            clampctrl="disable"
+            warmstart="disable"
+            filterparent="disable"
+            actuation="disable"
+            refsafe="disable"
+            midphase="disable"
+            eulerdamp="disable" />
+    </option>
+    <size
+        njmax="600"
+        nconmax="150"
+        nstack="300000" />
     <visual>
-        <map fogstart="3" fogend="5" znear="0.05"/>
-        <quality shadowsize="0"/>
-        <scale framelength="0.1"
-               framewidth="0.005"
-               contactwidth="0.1"
-               contactheight="0.005"
-               forcewidth="0.01"
-               />
-        <global offwidth="1280" offheight="720"/> <!-- for larger image rendering -->
+        <global
+            offwidth="1280"
+            offheight="720" />
+        <quality
+            shadowsize="0" />
+        <headlight
+            ambient="0.3 0.3 0.3"
+            specular="0 0 0" />
+        <map
+            fogend="5"
+            znear="0.05" />
+        <scale
+            forcewidth="0.01"
+            contactwidth="0.1"
+            contactheight="0.005"
+            framelength="0.1"
+            framewidth="0.005" />
     </visual>
-
     <asset>
-        <texture name="mug" file="./textures/mug.png" type="2d"/>
-        <material name="mug" texture="mug" specular="1" shininess="1"/>
-        <mesh file="./meshes/mug.obj" scale="0.02 0.02 0.02"/>
+        <texture
+            type="2d"
+            name="mug"
+            file="./textures/mug.png" />
+        <material
+            name="mug"
+            texture="mug"
+            specular="1"
+            shininess="1" />
+        <mesh
+            name="mug"
+            file="./meshes/mug.obj"
+            scale="0.02 0.02 0.02" />
     </asset>
-
     <worldbody>
-        <body name="manipulated_object" pos="0 0 0" euler="0 0 0">
-            <joint type="free" name="manipulated_object_dof"/>
-            <geom type="mesh" mesh="mug" material="mug" pos="0 0 0" euler="0 0 0" group="1" contype="1" conaffinity="1"/>
+        <camera
+            name="my_camera"
+            pos="2 -2 3"
+            quat="0.834834 0.371916 0.165165 0.370743" />
+        <light
+            name="light"
+            target="manipulated_object"
+            pos="0 0 6"
+            dir="0 0 -1"
+            directional="true"
+            mode="targetbody" />
+        <body
+            name="manipulated_object">
+            <joint
+                name="manipulated_object_dof"
+                type="free" />
+            <geom
+                type="mesh"
+                group="1"
+                material="mug"
+                mesh="mug" />
         </body>
-
-        <!--Lighting parameters-->
-        <light name="light3" mode="targetbody" target="manipulated_object" directional="true" pos="0 0 6"/>
-
-        <!--Camera parameters-->
-        <camera name="my_camera" pos="2 -2 3" xyaxes="0.658 0.728 0 -0.487 0.458 0.743"/>
     </worldbody>
-
 </mujoco>

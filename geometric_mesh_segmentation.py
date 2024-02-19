@@ -13,7 +13,7 @@ from typing import List, Union
 
 @dataclass
 class CameraParameters:
-    """convinience package of camera parameters"""
+    """convenience package of camera parameters"""
 
     res_x: int = 200
     res_y: int = 200
