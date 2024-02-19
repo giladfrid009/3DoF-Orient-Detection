@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from camera_simulator import CameraSimulator
-from camera_utils import xy_axes_to_frame_rotation, get_torch3d_R_T
+from camera_utils import xy_axes_to_rotation, get_torch3d_R_T
 from matplotlib import pyplot as plt
 from sam_segmentation import SAMSegmentation
 from utils import (
@@ -20,7 +20,7 @@ scale = 0.02
 
 cam_pos = [0.5, -0.5, 1.75]
 cam_xy_axes = [[0.685, 0.728, 0.000], [-0.487, 0.458, 0.743]]
-cam_frame_R = xy_axes_to_frame_rotation(cam_xy_axes[0], cam_xy_axes[1])
+cam_frame_R = xy_axes_to_rotation(cam_xy_axes[0], cam_xy_axes[1])
 cam_resx, cam_resy = 300, 300
 cam_fov = 45
 cam_znear, cam_zfar = 0.1, 100
@@ -71,7 +71,13 @@ if __name__ == "__main__":
         # can't really batch here since pose is different
         R, T = get_torch3d_R_T(cam_frame_R, cam_pos)
         cam_params = CameraParameters(
-            res_x=cam_resx, res_y=cam_resy, fov=cam_fov, R=R, T=T, z_near=cam_znear, z_far=cam_zfar
+            res_x=cam_resx,
+            res_y=cam_resy,
+            fov=cam_fov,
+            R=R,
+            T=T,
+            z_near=cam_znear,
+            z_far=cam_zfar,
         )
         mask, depth = get_mesh_segmentation_batch(
             mesh_path=mesh,

@@ -47,6 +47,6 @@ class CameraSimulator:
         mj.mj_step(self.model, self.data)
 
     def simulate_seconds(self, seconds: float):
-        max_iter = int(seconds / self.model.opt.timestep)
-        for _ in range(max_iter):
+        seconds = max(0, seconds)
+        for _ in range(seconds // self.model.opt.timestep):
             self.step_simulation()

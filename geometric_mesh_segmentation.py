@@ -122,7 +122,7 @@ def get_mesh_segmentation_batch(
     :param scale: mesh scale, applied to the vertices
     :param position: x, y, z position of the object in the world
     :param orientation: euler orientation of the object in the world, as x, y, z angles
-    :param device: torch evice
+    :param device: torch device
     :return: batch of segmentation mask_pose1
     """
 

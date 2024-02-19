@@ -19,7 +19,7 @@ def intrinsic_matrix_from_params(res_x, res_y, fov_x, fov_y):
     return np.array([[focal_x, 0, c_x], [0, focal_y, c_y], [0, 0, 1]])
 
 
-def extrinsic_matrix_from_rotation_translatin(rotation_matrix, translation):
+def extrinsic_matrix_from_rotation_translation(rotation_matrix, translation):
     extrinsic = np.zeros((3, 4))
     # rotation matrix is the rotation of the camera frame. The camera matrix is mapping from world to camera thus it
     # should be the inverse of the rotation matrix because it rotates back.
@@ -36,7 +36,7 @@ def extrinsic_matrix_from_rotation_translatin(rotation_matrix, translation):
     return extrinsic
 
 
-def xy_axes_to_frame_rotation(x_axis, y_axis):
+def xy_axes_to_rotation(x_axis, y_axis):
     y_axis = np.array(y_axis)
     x_axis = np.array(x_axis)
     # reduce non orthogonal part of y and x:
