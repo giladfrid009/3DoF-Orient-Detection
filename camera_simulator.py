@@ -43,10 +43,8 @@ class CameraSimulator:
         self.depth_renderer.update_scene(self.data, camera=0)
         return self.depth_renderer.render()
 
-    def step_simulation(self):
-        mj.mj_step(self.model, self.data)
-
     def simulate_seconds(self, seconds: float):
         seconds = max(0, seconds)
-        for _ in range(seconds // self.model.opt.timestep):
-            self.step_simulation()
+        iters = int(seconds / self.model.opt.timestep)
+        for _ in range(iters):
+            mj.mj_step(self.model, self.data)
