@@ -33,16 +33,15 @@ class ManipulatedObject:
         orientation_quat = scipy.spatial.transform.Rotation.from_euler("xyz", orientation).as_quat()
         self.data.qpos[self.jntadr + 3 : self.jntadr + 7] = orientation_quat
 
-    def get_orientation_euler(self):
-        return scipy.spatial.transform.Rotation.from_quat(self.data.qpos[self.jntadr + 3 : self.jntadr + 7]).as_euler(
-            "xyz"
-        )
+    def get_orientation_euler(self) -> list[float]:
+        rotation = scipy.spatial.transform.Rotation.from_quat(self.data.qpos[self.jntadr + 3 : self.jntadr + 7])
+        return rotation.as_euler("xyz")
 
-    def get_orientation_quat(self):
+    def get_orientation_quat(self) -> list[float]:
         return self.data.qpos[self.jntadr + 3 : self.jntadr + 7]
 
-    def get_position(self):
+    def get_position(self) -> list[float]:
         return self.data.qpos[self.jntadr : self.jntadr + 3]
 
-    def get_pose(self):
+    def get_pose(self) -> list[float]:
         return self.data.qpos[self.jntadr : self.jntadr + 7]

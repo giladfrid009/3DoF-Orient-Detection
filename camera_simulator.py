@@ -26,8 +26,11 @@ class CameraSimulator:
         obj_pos = list(obj_pos)
         self.manipulated_object.set_position(obj_pos)
 
-    def set_obj_orient_euler(self, orientation):
+    def set_object_orientation(self, orientation):
         self.manipulated_object.set_orientation_euler(orientation)
+
+    def get_object_orientation(self) -> list[float]:
+        self.manipulated_object.get_orientation_euler()
 
     def render(self, cam_rot, cam_pos):
         mj.mj_forward(self.model, self.data)
