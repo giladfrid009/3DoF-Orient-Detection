@@ -1,5 +1,16 @@
 import mujoco as mj
-from manipulated_object import ManipulatedObject
+import numpy as np
+from manipulated_object import ManipulatedObject, ObjectConfig
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class CameraConfig:
+    position: tuple[int, int, int]
+    rotation: np.ndarray
+    resolution: tuple[int, int] = (300, 300)
+    fov: int = 45
+    render_depth: bool = False
 
 
 class CameraSimulator:
@@ -30,7 +41,10 @@ class CameraSimulator:
         self.manipulated_object.set_orientation_euler(orientation)
 
     def get_object_orientation(self) -> list[float]:
-        self.manipulated_object.get_orientation_euler()
+        return self.manipulated_object.get_orientation_euler()
+
+    def get_object_config(self) -> ObjectConfig:
+        return ObjectConfig.from_object(self.manipulated_object)
 
     def render(self, cam_rot, cam_pos):
         mj.mj_forward(self.model, self.data)

@@ -1,4 +1,5 @@
 import scipy
+from dataclasses import dataclass
 
 
 class ManipulatedObject:
@@ -45,3 +46,13 @@ class ManipulatedObject:
 
     def get_pose(self) -> list[float]:
         return self.data.qpos[self.jntadr : self.jntadr + 7]
+
+
+@dataclass(frozen=True)
+class ObjectConfig:
+    orientation: list[float]
+    position: list[float]
+
+    @staticmethod
+    def from_object(obj_state: ManipulatedObject):
+        return ObjectConfig(obj_state.get_orientation_euler(), obj_state.get_position())
