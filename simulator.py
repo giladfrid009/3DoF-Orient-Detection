@@ -1,67 +1,59 @@
 import mujoco as mj
 import numpy as np
 from manipulated_object import ManipulatedObject, ObjectConfig
-from dataclasses import dataclass
-
-
-@dataclass(frozen=True)
-class CameraConfig:
-    position: tuple[int, int, int]
-    rotation: np.ndarray
-    resolution: tuple[int, int] = (300, 300)
-    fov: int = 45
-    render_depth: bool = False
+from view_converter import ViewConverter
 
 
 class Simulator:
     def __init__(
         self,
-        resolution=(500, 500),
-        fovy=45,
-        world_file="./data/world_mug.xml",
+        world_file,
+        resolution: tuple[int, int] = (500, 500),
+        fov: int = 45,
     ):
-        self.model = mj.MjModel.from_xml_path(world_file)
-        self.data = mj.MjData(self.model)
+        self._model = mj.MjModel.from_xml_path(world_file)
+        self._data = mj.MjData(self._model)
 
-        self.model.cam_fovy = fovy
-        self.model.vis.global_.fovy = fovy
+        self._model.cam_fovy = fov
+        self._model.vis.global_.fovy = fov
 
-        self.manipulated_object = ManipulatedObject(self.model, self.data)
-        self.manipulated_object.set_orientation_euler([0, 0, 0])
+        self._object = ManipulatedObject(self._model, self._data)
+        self._object.set_orientation([0, 0, 0])
 
-        self.renderer = mj.Renderer(self.model, resolution[0], resolution[1])
-        self.depth_renderer = mj.Renderer(self.model, resolution[0], resolution[1])
-        self.depth_renderer.enable_depth_rendering()
+        self._renderer = mj.Renderer(self._model, resolution[0], resolution[1])
+        self._depth_renderer = mj.Renderer(self._model, resolution[0], resolution[1])
+        self._depth_renderer.enable_depth_rendering()
 
-    def set_object_position(self, obj_pos: list | tuple):
-        obj_pos = list(obj_pos)
-        self.manipulated_object.set_position(obj_pos)
+    def set_object_position(self, obj_pos: tuple[float, float, float]):
+        self._object.set_position(obj_pos)
 
     def set_object_orientation(self, orientation):
-        self.manipulated_object.set_orientation_euler(orientation)
+        self._object.set_orientation(orientation)
 
-    def get_object_orientation(self) -> list[float]:
-        return self.manipulated_object.get_orientation_euler()
+    def get_object_orientation(self) -> tuple[float, float, float]:
+        return self._object.get_orientation()
 
     def get_object_config(self) -> ObjectConfig:
-        return ObjectConfig.from_object(self.manipulated_object)
+        return ObjectConfig.from_object(self._object)
 
-    def render(self, cam_rot, cam_pos):
-        mj.mj_forward(self.model, self.data)
-        self.data.cam_xpos = cam_pos
-        self.data.cam_xmat = cam_rot.flatten()
-        self.renderer.update_scene(self.data, camera=0)
-        return self.renderer.render()
+    def render(self, cam_rot: tuple[float, float, float], cam_pos: tuple[float, float, float]) -> np.ndarray:
+        mj.mj_forward(self._model, self._data)
+        self._data.cam_xpos = cam_pos
+        self._data.cam_xmat = ViewConverter.euler_to_matrix(cam_rot).flatten()
+        self._renderer.update_scene(self._data, camera=0)
+        image = self._renderer.render()
+        return image
 
-    def render_depth(self, cam_rot, cam_pos):
-        mj.mj_forward(self.model, self.data)
-        self.data.cam_xpos = cam_pos
-        self.data.cam_xmat = cam_rot.flatten()
-        self.depth_renderer.update_scene(self.data, camera=0)
-        return self.depth_renderer.render()
+    def render_depth(self, cam_rot: tuple[float, float, float], cam_pos: tuple[float, float, float]) -> np.ndarray:
+        mj.mj_forward(self._model, self._data)
+        self._data.cam_xpos = cam_pos
+        self._data.cam_xmat = ViewConverter.euler_to_matrix(cam_rot).flatten()
+        self._depth_renderer.update_scene(self._data, camera=0)
+        image = self._depth_renderer.render()
+        return image
 
     def simulate_seconds(self, seconds: float):
         seconds = max(0, seconds)
-        iters = int(seconds / self.model.opt.timestep)
+        iters = int(seconds / self._model.opt.timestep)
         for _ in range(iters):
-            mj.mj_step(self.model, self.data)
+            mj.mj_step(self._model, self._data)

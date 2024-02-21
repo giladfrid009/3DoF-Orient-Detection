@@ -1,5 +1,6 @@
-import scipy
 from dataclasses import dataclass
+
+from view_converter import ViewConverter
 
 
 class ManipulatedObject:
@@ -8,51 +9,33 @@ class ManipulatedObject:
     assuming it's body name is 'manipulated_object'
     """
 
-    def __init__(self, model, data):
-        self.model = model
-        self.data = data
-        self.jntadr = model.body("manipulated_object").jntadr[0]
+    def __init__(self, mj_model, mj_data):
+        self._model = mj_model
+        self._data = mj_data
+        self._jntadr = mj_model.body("manipulated_object").jntadr[0]
 
-    def set_pose(self, pose):
-        assert len(pose) == 7
-        self.data.qpos[self.jntadr : self.jntadr + 7] = pose
-
-    def set_position(self, position):
+    def set_position(self, position: tuple[float, float, float]):
         assert len(position) == 3
-        self.data.qpos[self.jntadr : self.jntadr + 3] = position
+        self._data.qpos[self._jntadr : self._jntadr + 3] = position
 
-    def zero_velocities(self):
-        self.data.qvel[self.jntadr : self.jntadr + 7] = [0.0] * 6
-
-    def set_orientation_quat(self, orientation):
-        assert len(orientation) == 4
-        self.data.qpos[self.jntadr + 3 : self.jntadr + 7] = orientation
-
-    def set_orientation_euler(self, orientation):
+    def set_orientation(self, orientation: tuple[float, float, float]):
         assert len(orientation) == 3
-        # use scipy to convert euler to quat
-        orientation_quat = scipy.spatial.transform.Rotation.from_euler("xyz", orientation).as_quat()
-        self.data.qpos[self.jntadr + 3 : self.jntadr + 7] = orientation_quat
+        orient_quat = ViewConverter.euler_to_quat(orientation)
+        self._data.qpos[self._jntadr + 3 : self._jntadr + 7] = orient_quat
 
-    def get_orientation_euler(self) -> list[float]:
-        rotation = scipy.spatial.transform.Rotation.from_quat(self.data.qpos[self.jntadr + 3 : self.jntadr + 7])
-        return rotation.as_euler("xyz")
+    def get_orientation(self) -> tuple[float, float, float]:
+        rotation = ViewConverter.quat_to_euler(self._data.qpos[self._jntadr + 3 : self._jntadr + 7])
+        return rotation
 
-    def get_orientation_quat(self) -> list[float]:
-        return self.data.qpos[self.jntadr + 3 : self.jntadr + 7]
-
-    def get_position(self) -> list[float]:
-        return self.data.qpos[self.jntadr : self.jntadr + 3]
-
-    def get_pose(self) -> list[float]:
-        return self.data.qpos[self.jntadr : self.jntadr + 7]
+    def get_position(self) -> tuple[float, float, float]:
+        return self._data.qpos[self._jntadr : self._jntadr + 3]
 
 
 @dataclass(frozen=True)
 class ObjectConfig:
-    orientation: list[float]
-    position: list[float]
+    orientation: tuple[float, float, float]
+    position: tuple[float, float, float]
 
     @staticmethod
     def from_object(obj_state: ManipulatedObject):
-        return ObjectConfig(obj_state.get_orientation_euler(), obj_state.get_position())
+        return ObjectConfig(obj_state.get_orientation(), obj_state.get_position())
