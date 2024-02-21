@@ -13,7 +13,7 @@ class CameraConfig:
     render_depth: bool = False
 
 
-class CameraSimulator:
+class Simulator:
     def __init__(
         self,
         resolution=(500, 500),

@@ -1,5 +1,5 @@
 import numpy as np
-from camera_simulator import CameraSimulator, CameraConfig
+from simulator import Simulator, CameraConfig
 from manipulated_object import ObjectConfig
 
 
@@ -10,7 +10,7 @@ class ImageSampler:
         camera_config: CameraConfig,
         simulation_time: float = 0,
     ):
-        self._camera = CameraSimulator(
+        self._simulator = Simulator(
             resolution=camera_config.resolution,
             fovy=camera_config.fov,
             world_file=world_file,
@@ -19,8 +19,8 @@ class ImageSampler:
         self._simulation_time = simulation_time
 
     @property
-    def camera(self):
-        return self._camera
+    def simulator(self):
+        return self._simulator
 
     @property
     def camera_config(self) -> CameraConfig:
@@ -28,15 +28,15 @@ class ImageSampler:
 
     def _render_image(self):
         if self.camera_config.render_depth:
-            return self.camera.render_depth(self.camera_config.rotation, self.camera_config.position)
-        return self.camera.render(self.camera_config.rotation, self.camera_config.position)
+            return self.simulator.render_depth(self.camera_config.rotation, self.camera_config.position)
+        return self.simulator.render(self.camera_config.rotation, self.camera_config.position)
 
     def get_view(self, config: ObjectConfig) -> tuple[np.ndarray, ObjectConfig]:
-        self.camera.set_object_position(config.position)
-        self.camera.set_object_orientation(config.orientation)
-        self.camera.simulate_seconds(self._simulation_time)
+        self.simulator.set_object_position(config.position)
+        self.simulator.set_object_orientation(config.orientation)
+        self.simulator.simulate_seconds(self._simulation_time)
         image = self._render_image()
-        config = self.camera.get_object_config()
+        config = self.simulator.get_object_config()
         return image, config
 
     def get_view_cropped(self, config: ObjectConfig, margin_factor: float = 1.2) -> tuple[np.ndarray, ObjectConfig]:
