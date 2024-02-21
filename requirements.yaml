@@ -6,19 +6,16 @@ name: robo-proj
 channels:
   - pytorch
   - conda-forge
-  - pytorch3d
   - defaults
 dependencies:
-  - pytorch3d
   - matplotlib
   - numpy
   - pip
   - python
   - tqdm
   - scipy
-  - opencv  
+  - opencv
   - pip:
-      - segment-anything @ git+https://github.com/facebookresearch/segment-anything.git@6fdee8f2727f4506cfbbe553e23b895e27956588
       - mujoco
 platforms:
   - linux-64
