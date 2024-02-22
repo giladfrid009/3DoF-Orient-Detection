@@ -113,7 +113,7 @@ class PSNR(MetricFunc):
 
 
 class StructuralSimilarity(MetricFunc):
-    def __init__(self, channel_axis: int = 2, win_size: int = None):
+    def __init__(self, channel_axis: int = -1, win_size: int = None):
         self.channel_axis = channel_axis
         self.win_size = win_size
 
