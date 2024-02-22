@@ -43,6 +43,7 @@ class ImageHelpers:
 
         return np.stack((xmin, ymin, xmax, ymax), axis=-1)
 
+    @staticmethod
     def pad_to_shape(image: np.ndarray, shape: np.ndarray, pad_value: float = 0) -> np.ndarray:
         pad_dims = []
         for width in np.subtract(shape, image.shape):

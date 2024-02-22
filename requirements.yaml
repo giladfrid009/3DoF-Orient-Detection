@@ -15,6 +15,7 @@ dependencies:
   - tqdm
   - scipy
   - opencv
+  - scikit-image
   - pip:
       - mujoco
 platforms:
