@@ -9,6 +9,8 @@ import skimage.color as color
 class MetricFunc(abc.ABC):
     def __call__(self, image1: np.ndarray, image2: np.ndarray, is_batch: bool = False) -> float | list[float]:
         assert image1.shape == image2.shape
+        assert image1.shape[-1] == 3
+        assert image1.dtype == image1.dtype == np.uint8
         if is_batch:
             return self._calculate_batch(image1, image2)
         return self._calculate(image1, image2)
@@ -18,35 +20,11 @@ class MetricFunc(abc.ABC):
         pass
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        scores = []
+        dists = []
         for img_truth, img_other in zip(batch_truth, batch_other):
-            score = self._calculate(img_truth, img_other)
-            scores.append(score)
-        return scores
-
-
-class MaskIntersect(MetricFunc):
-    def __init__(self, inner_metric: MetricFunc, bg_value: int = 0) -> None:
-        self.inner_metric = inner_metric
-        self.bg_value = bg_value
-
-    def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        mask1 = ImageHelpers.calc_mask(image_truth, bg_value=self.bg_value, orig_dims=True)
-        mask2 = ImageHelpers.calc_mask(image_other, bg_value=self.bg_value, orig_dims=True)
-        intersection = mask1 & mask2
-        image_truth = image_truth * intersection
-        image_other = image_other * intersection
-
-        return self.inner_metric(image_truth, image_other, is_batch=False)
-
-    def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        masks1 = ImageHelpers.calc_mask(batch_truth, bg_value=self.bg_value, orig_dims=True)
-        masks2 = ImageHelpers.calc_mask(batch_other, bg_value=self.bg_value, orig_dims=True)
-        intersection = masks1 & masks2
-        batch_truth = batch_truth * intersection
-        batch_other = batch_other * intersection
-
-        return self.inner_metric(batch_truth, batch_other, is_batch=True)
+            dist = self._calculate(img_truth, img_other)
+            dists.append(dist)
+        return dists
 
 
 class CannyEdges(MetricFunc):
@@ -59,6 +37,8 @@ class CannyEdges(MetricFunc):
         gray_other = color.rgb2gray(image_other)
         canny_truth = feature.canny(gray_truth, sigma=self.sigma, use_quantiles=True)
         canny_other = feature.canny(gray_other, sigma=self.sigma, use_quantiles=True)
+        canny_truth = (canny_truth * 255).astype(np.uint8)
+        canny_other = (canny_other * 255).astype(np.uint8)
         image_truth = np.broadcast_to(np.expand_dims(canny_truth, axis=-1), image_truth.shape)
         image_other = np.broadcast_to(np.expand_dims(canny_other, axis=-1), image_other.shape)
 
@@ -92,8 +72,7 @@ class IOU(MetricFunc):
         mask1 = ImageHelpers.calc_mask(image_truth, bg_value=self.bg_value, orig_dims=False)
         mask2 = ImageHelpers.calc_mask(image_other, bg_value=self.bg_value, orig_dims=False)
         iou = np.sum(mask1 & mask2) / np.sum(mask1 | mask2)
-        score = 1 - iou
-        return score
+        return 1 - iou
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
         masks1 = ImageHelpers.calc_mask(batch_truth, bg_value=self.bg_value, orig_dims=False)
@@ -101,8 +80,8 @@ class IOU(MetricFunc):
         N = batch_truth.shape[0]
         both = np.sum((masks1 & masks2).reshape(N, -1), axis=-1)
         any = np.sum((masks1 | masks2).reshape(N, -1), axis=-1)
-        scores = 1 - both / any
-        return scores.tolist()
+        dists = 1 - both / any
+        return dists.tolist()
 
 
 class MSE(MetricFunc):
@@ -128,29 +107,28 @@ class NMI(MetricFunc):
 
 
 class PSNR(MetricFunc):
-    def __init__(self, data_range: float = 255):
-        self.data_range = data_range
-
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        return metrics.peak_signal_noise_ratio(image_truth, image_other, data_range=self.data_range)
+        psnr = metrics.peak_signal_noise_ratio(image_truth, image_other, data_range=255)
+        return -1 * psnr
 
 
 class StructuralSimilarity(MetricFunc):
-    def __init__(self, data_range: float = 255, channel_axis: int = 2, win_size: int = None):
-        self.data_range = data_range
+    def __init__(self, channel_axis: int = 2, win_size: int = None):
         self.channel_axis = channel_axis
         self.win_size = win_size
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        return metrics.structural_similarity(
+        similarity = metrics.structural_similarity(
             image_truth,
             image_other,
             win_size=self.win_size,
             channel_axis=self.channel_axis,
-            data_range=self.data_range,
+            data_range=255,
             gradient=False,
             full=False,
         )
+
+        return 1 - similarity
 
 
 class HausdorffDistance(MetricFunc):
@@ -161,28 +139,25 @@ class HausdorffDistance(MetricFunc):
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
         masks1 = ImageHelpers.calc_mask(batch_truth, bg_value=self.bg_value, orig_dims=False)
         masks2 = ImageHelpers.calc_mask(batch_other, bg_value=self.bg_value, orig_dims=False)
-        scores = []
+        dists = []
         for m1, m2 in zip(masks1, masks2):
             score = metrics.hausdorff_distance(m1, m2, method=self.method)
-            scores.append(score)
-        return scores
+            dists.append(score)
+        return dists
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         mask1 = ImageHelpers.calc_mask(image_truth, bg_value=self.bg_value, orig_dims=False)
         mask2 = ImageHelpers.calc_mask(image_other, bg_value=self.bg_value, orig_dims=False)
-        dist = metrics.hausdorff_distance(mask1, mask2, method=self.method)
-        score = 1 / (1 + dist)
-        return score
+        return metrics.hausdorff_distance(mask1, mask2, method=self.method)
 
 
 class AdaptedRandError(MetricFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         error, _, _ = metrics.adapted_rand_error(image_truth, image_other)
-        fscore = 1 - error
-        return fscore
+        return error
 
 
 class VariationOfInformation(MetricFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         h1, h2 = metrics.variation_of_information(image_truth, image_other)
-        return 1 / (h2 + 1)
+        return h2
