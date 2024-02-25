@@ -2,24 +2,57 @@ import abc
 import numpy as np
 import skimage.metrics as metrics
 from image_helpers import ImageHelpers
-import skimage.feature as feature
-import skimage.color as color
+import skimage
+from skimage import feature
+from skimage import color
+from skimage import filters
 
 
 class MetricFunc(abc.ABC):
-    def __call__(self, image1: np.ndarray, image2: np.ndarray, is_batch: bool = False) -> float | list[float]:
-        assert image1.shape == image2.shape
-        assert image1.shape[-1] == 3
-        assert image1.dtype == image1.dtype == np.uint8
+    def __call__(self, image_truth: np.ndarray, image_other: np.ndarray, is_batch: bool = False) -> float | list[float]:
+        """
+        Calculate the difference metric between two images.
+
+        Args:
+            image_truth (np.ndarray): The ground truth image.
+            image_other (np.ndarray): The other image to compare with.
+            is_batch (bool, optional): Whether the input images are batched. Defaults to False.
+
+        Returns:
+            float | list[float]: The calculated metric value(s).
+        """
+        assert image_truth.shape == image_other.shape
+        assert image_truth.shape[-1] == 3
+        assert image_truth.dtype == image_truth.dtype == np.uint8
         if is_batch:
-            return self._calculate_batch(image1, image2)
-        return self._calculate(image1, image2)
+            return self._calculate_batch(image_truth, image_other)
+        return self._calculate(image_truth, image_other)
 
     @abc.abstractclassmethod
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
+        """
+        Abstract method to calculate the difference metric value between two images.
+
+        Args:
+            image_truth (np.ndarray): The ground truth image.
+            image_other (np.ndarray): The other image to compare with.
+
+        Returns:
+            float: The calculated metric value.
+        """
         pass
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
+        """
+        Calculate the difference metric values for a batch of images.
+
+        Args:
+            batch_truth (np.ndarray): The batch of ground truth images.
+            batch_other (np.ndarray): The batch of other images to compare with.
+
+        Returns:
+            list[float]: The calculated metric values for each pair of images in the batch.
+        """
         dists = []
         for img_truth, img_other in zip(batch_truth, batch_other):
             dist = self._calculate(img_truth, img_other)
@@ -28,19 +61,22 @@ class MetricFunc(abc.ABC):
 
 
 class CannyEdges(MetricFunc):
-    def __init__(self, inner_metric: MetricFunc, sigma: float = 1.5):
+    def __init__(self, inner_metric: MetricFunc, sigma: float = 1.75):
         self.inner_metric = inner_metric
         self.sigma = sigma
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         gray_truth = color.rgb2gray(image_truth)
         gray_other = color.rgb2gray(image_other)
+
         canny_truth = feature.canny(gray_truth, sigma=self.sigma, use_quantiles=True)
         canny_other = feature.canny(gray_other, sigma=self.sigma, use_quantiles=True)
-        canny_truth = (canny_truth * 255).astype(np.uint8)
-        canny_other = (canny_other * 255).astype(np.uint8)
+
         image_truth = np.broadcast_to(np.expand_dims(canny_truth, axis=-1), image_truth.shape)
         image_other = np.broadcast_to(np.expand_dims(canny_other, axis=-1), image_other.shape)
+
+        image_truth = (image_truth * 255).astype(np.uint8)
+        image_other = (image_other * 255).astype(np.uint8)
 
         return self.inner_metric(image_truth, image_other, is_batch=False)
 
@@ -53,15 +89,33 @@ class CannyEdges(MetricFunc):
         for img_truth, img_other in zip(gray_truth, gray_other):
             canny_truth = feature.canny(img_truth, sigma=self.sigma)
             canny_other = feature.canny(img_other, sigma=self.sigma)
+
             edges_truth.append(canny_truth)
             edges_other.append(canny_other)
 
         edges_truth = np.stack(edges_truth, axis=0)
         edges_other = np.stack(edges_other, axis=0)
+
         batch_truth = np.broadcast_to(np.expand_dims(edges_truth, axis=-1), batch_truth.shape)
         batch_other = np.broadcast_to(np.expand_dims(edges_other, axis=-1), batch_other.shape)
 
+        batch_truth = (batch_truth * 255).astype(np.uint8)
+        batch_other = (batch_other * 255).astype(np.uint8)
+
         return self.inner_metric(batch_truth, batch_other, is_batch=True)
+
+
+class Gaussian(MetricFunc):
+    def __init__(self, inner_metric: MetricFunc, sigma: int = 1):
+        self.inner_metric = inner_metric
+        self.sigma = sigma
+
+    def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
+
+        image_other = filters.gaussian(image_other, sigma=self.sigma, channel_axis=-1)
+        image_other = skimage.util.img_as_ubyte(image_other)
+
+        return self.inner_metric(image_truth, image_other, is_batch=False)
 
 
 class IOU(MetricFunc):
@@ -113,8 +167,7 @@ class PSNR(MetricFunc):
 
 
 class StructuralSimilarity(MetricFunc):
-    def __init__(self, channel_axis: int = -1, win_size: int = None):
-        self.channel_axis = channel_axis
+    def __init__(self, win_size: int = None):
         self.win_size = win_size
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
@@ -122,7 +175,7 @@ class StructuralSimilarity(MetricFunc):
             image_truth,
             image_other,
             win_size=self.win_size,
-            channel_axis=self.channel_axis,
+            channel_axis=-1,
             data_range=255,
             gradient=False,
             full=False,
