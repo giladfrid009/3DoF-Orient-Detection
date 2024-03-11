@@ -13,6 +13,7 @@ class RandomSampling(Algorithm):
     @dataclass
     class Config(SearchConfig):
         num_samples: int = 1000
+        rnd_seed: int = None
         silent: bool = False
 
     def __init__(self, test_viewer: ViewSampler, metric_func: MetricFunc):
@@ -24,17 +25,16 @@ class RandomSampling(Algorithm):
         ref_position: tuple[float, float, float],
         config: Config,
     ) -> tuple[float, float, float]:
-        lowest_loss = np.inf
-        best_orient = None
-
-        rnd_orients = np.random.uniform(0, 2 * np.pi, size=(config.num_samples, 3)).tolist()
 
         start_time = time.time()
 
-        test_orientations = tqdm(
-            iterable=rnd_orients,
-            disable=config.silent,
-        )
+        lowest_loss = np.inf
+        best_orient = None
+
+        rnd_generator = np.random.default_rng(config.rnd_seed)
+        rnd_orients = rnd_generator.uniform(0, 2 * np.pi, size=(config.num_samples, 3)).tolist()
+
+        test_orientations = tqdm(iterable=rnd_orients, disable=config.silent)
 
         for test_orient in test_orientations:
             loss = self.calc_loss(ref_position, ref_img, test_orient)
@@ -43,7 +43,7 @@ class RandomSampling(Algorithm):
                 lowest_loss = loss
                 best_orient = test_orient
 
-            test_orientations.set_postfix_str(f"Lowest loss: {lowest_loss:.2f}")
+            test_orientations.set_postfix_str(f"Loss: {lowest_loss:.2f}")
 
             if time.time() - start_time > config.time_limit:
                 break

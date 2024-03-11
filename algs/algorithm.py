@@ -1,6 +1,4 @@
 import numpy as np
-import time
-import tqdm
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -37,6 +35,9 @@ class Algorithm(ABC):
 
     @abstractmethod
     def find_orientation(
-        self, ref_img: np.ndarray, ref_position: tuple[float, float, float], config: SearchConfig
+        self,
+        ref_img: np.ndarray,
+        ref_position: tuple[float, float, float],
+        config: SearchConfig,
     ) -> tuple[float, float, float]:
         pass
