@@ -33,8 +33,7 @@ class RandomSampling(Algorithm):
 
         rnd_generator = np.random.default_rng(config.rnd_seed)
 
-        high = np.expand_dims(np.array([2 * np.pi, np.pi, 2 * np.pi]), axis=0)
-        rnd_orients = rnd_generator.uniform(low=0, high=high, size=(config.num_samples, 3)).tolist()
+        rnd_orients = rnd_generator.uniform(low=0, high=2 * np.pi, size=(config.num_samples, 3)).tolist()
 
         test_orientations = tqdm(iterable=rnd_orients, disable=config.silent, leave=False)
 
