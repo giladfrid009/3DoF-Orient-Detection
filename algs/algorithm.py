@@ -24,7 +24,7 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         test_orient: tuple[float, float, float],
     ) -> float:
-        test_img, _ = self.test_viewer.get_view_cropped(ObjectConfig(test_orient, ref_position))
+        test_img, _ = self.test_viewer.get_view(ObjectConfig(test_orient, ref_position))
 
         pad_shape = np.maximum(ref_img.shape, test_img.shape)
         ref_img = ImageHelpers.pad_to_shape(ref_img, pad_shape)

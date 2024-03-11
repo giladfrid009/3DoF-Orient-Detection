@@ -8,11 +8,11 @@ from tqdm.auto import tqdm
 from metric_funcs import *
 
 
-class RandomSampling(Algorithm):
+class UniformSampling(Algorithm):
 
     @dataclass
     class Config(SearchConfig):
-        num_samples: int = 1000
+        max_samples: int = 1000
         rnd_seed: int = None
         silent: bool = False
 
@@ -26,17 +26,23 @@ class RandomSampling(Algorithm):
         config: Config,
     ) -> tuple[float, float, float]:
 
-        start_time = time.time()
+        n = int((config.max_samples / 4) ** (1 / 3))
 
+        alpha = np.linspace(0, 2 * np.pi, 2 * n)
+        beta = np.linspace(0, np.pi, n)
+        gamma = np.linspace(0, 2 * np.pi, 2 * n)
+        orient_grid = np.vstack(np.meshgrid(alpha, beta, gamma, indexing="xy")).reshape(3, -1).T
+
+        # shuffle the orientations
+        """ rnd_generator = np.random.default_rng(config.rnd_seed)
+        idx = rnd_generator.random(size=orient_grid.shape).argsort(axis=0)
+        orient_grid = np.take_along_axis(orient_grid, idx, axis=0) """
+
+        test_orientations = tqdm(iterable=orient_grid.tolist(), disable=config.silent, leave=False)
+
+        start_time = time.time()
         lowest_loss = np.inf
         best_orient = None
-
-        rnd_generator = np.random.default_rng(config.rnd_seed)
-
-        high = np.expand_dims(np.array([2 * np.pi, np.pi, 2 * np.pi]), axis=0)
-        rnd_orients = rnd_generator.uniform(low=0, high=high, size=(config.num_samples, 3)).tolist()
-
-        test_orientations = tqdm(iterable=rnd_orients, disable=config.silent, leave=False)
 
         for test_orient in test_orientations:
             loss = self.calc_loss(ref_position, ref_img, test_orient)
