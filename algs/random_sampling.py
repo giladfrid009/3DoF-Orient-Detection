@@ -35,7 +35,11 @@ class RandomSampling(Algorithm):
 
         rnd_orients = rnd_generator.uniform(low=0, high=2 * np.pi, size=(config.num_samples, 3)).tolist()
 
-        test_orientations = tqdm(iterable=rnd_orients, disable=config.silent, leave=False)
+        test_orientations = tqdm(
+            iterable=rnd_orients,
+            disable=config.silent,
+            leave=False,
+        )
 
         for test_orient in test_orientations:
             loss = self.calc_loss(ref_position, ref_img, test_orient)
@@ -44,9 +48,9 @@ class RandomSampling(Algorithm):
                 lowest_loss = loss
                 best_orient = test_orient
 
-            test_orientations.set_postfix_str(f"Loss: {lowest_loss:.2f}")
+            test_orientations.set_postfix_str(f"Loss: {lowest_loss:.5f}")
 
-            if time.time() - start_time > config.time_limit:
+            if config.time_limit and time.time() - start_time > config.time_limit:
                 break
 
         return best_orient
