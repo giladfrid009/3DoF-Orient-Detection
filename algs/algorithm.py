@@ -10,7 +10,7 @@ from image_helpers import ImageHelpers
 
 @dataclass
 class SearchConfig:
-    time_limit: float = 10.0
+    time_limit: float = None
 
 
 class Algorithm(ABC):

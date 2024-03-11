@@ -57,13 +57,13 @@ class TqdmPSO(sko.PSO.PSO):
         """
         start_time = time.time()
 
-        iterations = tqdm(
+        tqdm_bar = tqdm(
             range(self.max_iter),
             disable=(not self.verbose),
             leave=False,
         )
 
-        for _ in iterations:
+        for _ in tqdm_bar:
             self.update_V()
             self.recorder()
             self.update_X()
@@ -73,12 +73,14 @@ class TqdmPSO(sko.PSO.PSO):
 
             self.gbest_y_hist.append(self.gbest_y)
 
-            iterations.set_postfix_str(f"Loss: {self.gbest_y[0]:.5f}")
+            tqdm_bar.set_postfix_str(f"Loss: {self.gbest_y[0]:.5f}")
 
             if time_limit and time.time() - start_time > time_limit:
                 break
 
         self.best_x, self.best_y = self.gbest_x, self.gbest_y
+
+        tqdm_bar.close()
 
         return self.gbest_x
 
