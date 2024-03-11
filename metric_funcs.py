@@ -22,7 +22,7 @@ class MetricFunc(abc.ABC):
             float | list[float]: The calculated metric value(s).
         """
         assert image_truth.shape == image_other.shape
-        assert image_truth.shape[-1] == 3
+        assert  3 <= image_truth.ndim and image_truth.ndim <= 4
         assert image_truth.dtype == image_truth.dtype == np.uint8
         if is_batch:
             return self._calculate_batch(image_truth, image_other)

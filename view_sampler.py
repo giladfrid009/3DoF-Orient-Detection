@@ -40,7 +40,9 @@ class ViewSampler:
 
     def _render_image(self):
         if self.camera_config.render_depth:
-            return self.simulator.render_depth(self.camera_config.rotation, self.camera_config.position)
+            image = self.simulator.render_depth(self.camera_config.rotation, self.camera_config.position)
+            image = np.expand_dims(image, axis=-1)
+            return image
         return self.simulator.render(self.camera_config.rotation, self.camera_config.position)
 
     def get_view(self, config: ObjectConfig) -> tuple[np.ndarray, ObjectConfig]:
