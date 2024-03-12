@@ -23,7 +23,7 @@ class RandomSampling(Algorithm):
         self,
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
-        config: Config,
+        alg_config: Config,
     ) -> tuple[float, float, float]:
 
         start_time = time.time()
@@ -31,13 +31,13 @@ class RandomSampling(Algorithm):
         lowest_loss = np.inf
         best_orient = None
 
-        rnd_generator = np.random.default_rng(config.rnd_seed)
+        rnd_generator = np.random.default_rng(alg_config.rnd_seed)
 
-        rnd_orients = rnd_generator.uniform(low=0, high=2 * np.pi, size=(config.num_samples, 3)).tolist()
+        rnd_orients = rnd_generator.uniform(low=0, high=2 * np.pi, size=(alg_config.num_samples, 3)).tolist()
 
         tqdm_bar = tqdm(
             iterable=rnd_orients,
-            disable=config.silent,
+            disable=alg_config.silent,
             leave=False,
         )
 
@@ -50,7 +50,7 @@ class RandomSampling(Algorithm):
 
             tqdm_bar.set_postfix_str(f"Loss: {lowest_loss:.5f}")
 
-            if config.time_limit and time.time() - start_time > config.time_limit:
+            if alg_config.time_limit and time.time() - start_time > alg_config.time_limit:
                 break
 
         tqdm_bar.close()

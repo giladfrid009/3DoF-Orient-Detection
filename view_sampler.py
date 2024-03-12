@@ -44,10 +44,15 @@ class ViewSampler:
             return image
         return self.simulator.render(self.camera_config.rotation, self.camera_config.position)
 
-    def get_view(self, config: ObjectConfig, depth: bool = False) -> tuple[np.ndarray, ObjectConfig]:
+    def get_view(
+        self,
+        config: ObjectConfig,
+        depth: bool = False,
+        allow_simulation: bool = True,
+    ) -> tuple[np.ndarray, ObjectConfig]:
         self.simulator.set_object_position(config.position)
         self.simulator.set_object_orientation(config.orientation)
-        self.simulator.simulate_seconds(self._simulation_time)
+        self.simulator.simulate_seconds(self._simulation_time if allow_simulation else 0)
         image = self._render_image(depth)
         config = self.simulator.get_object_config()
         return image, config
@@ -57,11 +62,12 @@ class ViewSampler:
         config: ObjectConfig,
         depth: bool = False,
         margin_factor: float = 1.2,
+        allow_simulation: bool = True,
     ) -> tuple[np.ndarray, ObjectConfig]:
 
         if depth:
             # we first get the rgb image to calculate the mask
-            rgb_image, config = self.get_view(config, depth=False)
+            rgb_image, config = self.get_view(config, depth=False, allow_simulation=allow_simulation)
             mask = ImageHelpers.calc_mask(rgb_image, bg_value=0)
             x1, y1, x2, y2 = ImageHelpers.calc_bboxes(mask, margin_factor)
 

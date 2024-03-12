@@ -38,6 +38,6 @@ class Algorithm(ABC):
         self,
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
-        config: SearchConfig,
+        alg_config: SearchConfig,
     ) -> tuple[float, float, float]:
         pass

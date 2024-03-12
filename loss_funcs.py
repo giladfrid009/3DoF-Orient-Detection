@@ -9,25 +9,28 @@ from skimage import filters
 
 
 class LossFunc(abc.ABC):
-    def __call__(self, image_truth: np.ndarray, image_other: np.ndarray, is_batch: bool = False) -> float | list[float]:
+    def __call__(self, image_truth: np.ndarray, image_other: np.ndarray) -> float | list[float]:
         """
         Calculate the loss metric between two images. The more similar the images, the lower the loss value.
 
         Args:
             image_truth (np.ndarray): The ground truth image.
             image_other (np.ndarray): The other image to compare with.
-            is_batch (bool, optional): Whether the input images are batched. Defaults to False.
 
         Returns:
             float | list[float]: The calculated loss value(s).
         """
         assert image_truth.shape[-1] == 3
         assert image_truth.shape == image_other.shape
-        assert 3 <= image_truth.ndim and image_truth.ndim <= 4
         assert image_truth.dtype == image_truth.dtype == np.uint8
-        if is_batch:
+
+        if image_truth.ndim == 4:
             return self._calculate_batch(image_truth, image_other)
-        return self._calculate(image_truth, image_other)
+
+        if image_truth.ndim == 3:
+            return self._calculate(image_truth, image_other)
+
+        raise ValueError("Invalid input image shape. Must be either [W, H, 3] or [N, W, H, 3]")
 
     @abc.abstractclassmethod
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
@@ -54,11 +57,11 @@ class LossFunc(abc.ABC):
         Returns:
             list[float]: The calculated loss values for each pair of images in the batch.
         """
-        dists = []
+        losses = []
         for img_truth, img_other in zip(batch_truth, batch_other):
-            dist = self._calculate(img_truth, img_other)
-            dists.append(dist)
-        return dists
+            loss = self._calculate(img_truth, img_other)
+            losses.append(loss)
+        return losses
 
 
 class CannyEdges(LossFunc):
@@ -79,7 +82,7 @@ class CannyEdges(LossFunc):
         image_truth = (image_truth * 255).astype(np.uint8)
         image_other = (image_other * 255).astype(np.uint8)
 
-        return self.inner_loss_func(image_truth, image_other, is_batch=False)
+        return self.inner_loss_func(image_truth, image_other)
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
         gray_truth = color.rgb2gray(batch_truth)
@@ -103,7 +106,7 @@ class CannyEdges(LossFunc):
         batch_truth = (batch_truth * 255).astype(np.uint8)
         batch_other = (batch_other * 255).astype(np.uint8)
 
-        return self.inner_loss_func(batch_truth, batch_other, is_batch=True)
+        return self.inner_loss_func(batch_truth, batch_other)
 
 
 class Gaussian(LossFunc):
@@ -115,7 +118,7 @@ class Gaussian(LossFunc):
         image_other = filters.gaussian(image_other, sigma=self.sigma, channel_axis=-1)
         image_other = skimage.util.img_as_ubyte(image_other)
 
-        return self.inner_loss_func(image_truth, image_other, is_batch=False)
+        return self.inner_loss_func(image_truth, image_other)
 
 
 class IOU(LossFunc):
@@ -134,21 +137,57 @@ class IOU(LossFunc):
         N = batch_truth.shape[0]
         both = np.sum((masks1 & masks2).reshape(N, -1), axis=-1)
         any = np.sum((masks1 | masks2).reshape(N, -1), axis=-1)
-        dists = 1 - both / any
-        return dists.tolist()
+        ious = 1 - both / any
+        return ious.tolist()
 
 
 class MSE(LossFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        return metrics.mean_squared_error(image_truth, image_other)
+        image_truth = image_truth.astype(np.float64)
+        image_other = image_other.astype(np.float64)
+        mse = np.mean((image_truth - image_other) ** 2, dtype=np.float64)
+        return mse
+
+    def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
+        batch_truth = batch_truth.astype(np.float64)
+        batch_other = batch_other.astype(np.float64)
+        mses = np.mean((batch_truth - batch_other) ** 2, axis=(1, 2, 3), dtype=np.float64)
+        return mses.tolist()
 
 
 class NormMSE(LossFunc):
     def __init__(self, norm: str = "euclidean"):
-        self.norm = norm
+        self.norm = norm.lower()
+        assert self.norm in ["euclidean", "min-max", "mean"]
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        return metrics.normalized_root_mse(image_truth, image_other, normalization=self.norm)
+        image_truth = image_truth.astype(np.float64)
+        image_other = image_other.astype(np.float64)
+        mse = np.mean((image_truth - image_other) ** 2, dtype=np.float64)
+
+        if self.norm == "euclidean":
+            denom = np.sqrt(np.mean(image_truth**2, dtype=np.float64))
+        elif self.norm == "min-max":
+            denom = image_truth.max() - image_truth.min()
+        elif self.norm == "mean":
+            denom = image_truth.mean()
+
+        return np.sqrt(mse) / denom
+
+    def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
+        batch_truth = batch_truth.astype(np.float64)
+        batch_other = batch_other.astype(np.float64)
+        mses = np.mean((batch_truth - batch_other) ** 2, axis=(1, 2, 3))
+
+        if self.norm == "euclidean":
+            denom = np.sqrt(np.mean(batch_truth**2, axis=(1, 2, 3), dtype=np.float64))
+        elif self.norm == "min-max":
+            denom = np.max(batch_truth, axis=(1, 2, 3)) - np.min(batch_truth, axis=(1, 2, 3))
+        elif self.norm == "mean":
+            denom = np.mean(batch_truth, axis=(1, 2, 3))
+
+        normalized = np.sqrt(mses) / denom
+        return normalized.tolist()
 
 
 class MutualInformation(LossFunc):
@@ -187,16 +226,16 @@ class StructuralSimilarity(LossFunc):
 class HausdorffDistance(LossFunc):
     def __init__(self, bg_value: int = 0, method: str = "modified"):
         self.bg_value = bg_value
-        self.method = method
+        self.method = method.lower()
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
         masks1 = ImageHelpers.calc_mask(batch_truth, bg_value=self.bg_value)
         masks2 = ImageHelpers.calc_mask(batch_other, bg_value=self.bg_value)
-        dists = []
+        losses = []
         for m1, m2 in zip(masks1, masks2):
             score = metrics.hausdorff_distance(m1, m2, method=self.method)
-            dists.append(score)
-        return dists
+            losses.append(score)
+        return losses
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         mask1 = ImageHelpers.calc_mask(image_truth, bg_value=self.bg_value)

@@ -111,20 +111,20 @@ class SimulatedAnnealing(Algorithm):
         self,
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
-        config: Config,
+        alg_config: Config,
     ) -> tuple[float, float, float]:
 
         func = lambda x: self.calc_loss(ref_position, ref_img, x)
 
         alg = TqdmSA(
             func,
-            temp_init=config.temp_init,
-            num_iters=config.num_iters,
-            L=config.L,
-            stay_counter=config.stay_counter,
-            silent=config.silent,
+            temp_init=alg_config.temp_init,
+            num_iters=alg_config.num_iters,
+            L=alg_config.L,
+            stay_counter=alg_config.stay_counter,
+            silent=alg_config.silent,
         )
 
-        orient = alg.run(time_limit=config.time_limit)
+        orient = alg.run(time_limit=alg_config.time_limit)
 
         return orient

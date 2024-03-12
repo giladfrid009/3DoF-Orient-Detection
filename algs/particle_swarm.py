@@ -95,19 +95,19 @@ class ParticleSwarm(Algorithm):
         self,
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
-        config: Config,
+        alg_config: Config,
     ) -> tuple[float, float, float]:
 
         func = lambda test_orient: self.calc_loss(ref_position, ref_img, test_orient)
 
         alg = TqdmPSO(
             func,
-            pop=config.population,
-            num_iters=config.num_iters,
-            inertia=config.inertia,
-            silent=config.silent,
+            pop=alg_config.population,
+            num_iters=alg_config.num_iters,
+            inertia=alg_config.inertia,
+            silent=alg_config.silent,
         )
 
-        orient = alg.run(time_limit=config.time_limit)
+        orient = alg.run(time_limit=alg_config.time_limit)
 
         return orient
