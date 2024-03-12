@@ -1,6 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Callable
 
 from view_sampler import ViewSampler
 from manipulated_object import ObjectConfig
@@ -16,8 +17,12 @@ class SearchConfig:
 
 class Algorithm(ABC):
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
-        self.test_viewer = test_viewer
+        self._test_viewer = test_viewer
         self.loss_func = loss_func
+        self._callback_funcs = []
+
+    def register_loss_callback(self, callback: Callable[[tuple[float, float, float], float], None]):
+        self._callback_funcs.append(callback)
 
     def calc_loss(
         self,
@@ -25,13 +30,17 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         test_orient: tuple[float, float, float],
     ) -> float:
-        test_img, _ = self.test_viewer.get_view_cropped(ObjectConfig(test_orient, ref_position))
+        test_img, _ = self._test_viewer.get_view_cropped(ObjectConfig(test_orient, ref_position))
 
         pad_shape = np.maximum(ref_img.shape, test_img.shape)
         ref_img = ImageHelpers.pad_to_shape(ref_img, pad_shape)
         test_img = ImageHelpers.pad_to_shape(test_img, pad_shape)
 
         loss = self.loss_func(ref_img, test_img)
+
+        for callback in self._callback_funcs:
+            callback(test_orient, loss)
+
         return loss
 
     @abstractmethod
