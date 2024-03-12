@@ -12,8 +12,12 @@ class RandomRestarts(Algorithm):
 
     @dataclass
     class Config(SearchConfig):
-        inner_config: SearchConfig
+        inner_config: SearchConfig = None
         num_restarts: int = 5
+
+    def __post_init__(self):
+        if self.config.inner_config is None:
+            raise ValueError("RandomRestarts requires an inner_config to be set")
 
     def __init__(self, inner_alg: Algorithm):
         super().__init__(None, None)
@@ -35,6 +39,7 @@ class RandomRestarts(Algorithm):
     ) -> tuple[float, float, float]:
 
         inner_config = copy.deepcopy(alg_config.inner_config)
+        inner_config.silent = alg_config.silent
 
         lowest_loss = np.inf
         best_orient = None
@@ -43,13 +48,14 @@ class RandomRestarts(Algorithm):
             iterable=range(alg_config.num_restarts),
             disable=inner_config.silent,
             leave=False,
+            desc="Running Inner Alg",
         )
 
         start_time = time.time()
 
         for _ in tqdm_bar:
 
-            # we update the time limit for the inner algorithm
+            # update the time limit for the inner algorithm
             inner_config.time_limit = min(inner_config.time_limit, alg_config.time_limit - (time.time() - start_time))
 
             orient, loss = self.inner_alg.find_orientation(ref_img, ref_position, inner_config)
@@ -60,6 +66,8 @@ class RandomRestarts(Algorithm):
 
             if time.time() - start_time > alg_config.time_limit:
                 break
+
+            tqdm_bar.set_postfix_str(f"Loss: {lowest_loss:.5f}")
 
         tqdm_bar.close()
 

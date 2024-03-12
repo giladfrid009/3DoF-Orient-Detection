@@ -14,11 +14,11 @@ class TqdmSA(sko.SA.SA):
     def __init__(
         self,
         func: Callable,
-        init_temp: float = 100,
-        num_iters: int = 150,
-        samples_per_temp: int = 300,
-        stay_counter: int = 150,
-        silent: bool = False,
+        init_temp: float,
+        num_iters: int,
+        samples_per_temp: int,
+        stay_counter: int,
+        silent: bool,
     ):
         """
         Parameters

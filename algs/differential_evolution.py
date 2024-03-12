@@ -10,83 +10,89 @@ from tqdm.auto import tqdm
 from loss_funcs import *
 
 
-class TqdmPSO(sko.PSO.PSO):
+class TqdmDE(sko.DE.DE):
     def __init__(
         self,
         func: Callable,
-        pop: int,
         num_iters: int,
-        inertia: float,
-        silent: bool,
+        pop: int,
+        mut_prob: float,
+        F: float,
+        silent: bool = False,
     ):
         """
         Parameters
-        --------------------
+        ----------------
         func : function
             The func you want to do optimal
-        pop : int
-            Size of population, which is the number of Particles. We use 'pop' to keep accordance with GA
+        size_pop : int
+            Size of population
         num_iters : int
-            Number of iterations
-        lb : array_like
-            The lower bound of every variables of func
-        ub : array_like
-            The upper bound of every variables of func
-        inertia : float
-            The inertia of the particle
+            Number of iters
+        prob_mut : float between 0 and 1
+            Probability of mutation
         """
+
         super().__init__(
             func=func,
             n_dim=3,
             lb=[0, 0, 0],
             ub=[2 * np.pi, 2 * np.pi, 2 * np.pi],
-            pop=pop,
+            F=F,
+            size_pop=pop,
             max_iter=num_iters,
-            w=inertia,
-            c1=0.5,
-            c2=0.5,
-            verbose=(not silent),
+            prob_mut=mut_prob,
         )
+
+        self.silent = silent
 
     def run(self, time_limit: float) -> tuple[tuple[float, float, float], float]:
         start_time = time.time()
 
         tqdm_bar = tqdm(
             range(self.max_iter),
-            disable=(not self.verbose),
+            disable=self.silent,
             leave=False,
         )
 
+        self.best_x = None
+        self.best_y = np.inf
+
         for _ in tqdm_bar:
-            self.update_V()
-            self.recorder()
-            self.update_X()
-            self.cal_y()
-            self.update_pbest()
-            self.update_gbest()
+            self.mutation()
+            self.crossover()
+            self.selection()
 
-            self.gbest_y_hist.append(self.gbest_y)
+            # record the best ones
+            generation_best_index = self.Y.argmin()
+            self.generation_best_X.append(self.X[generation_best_index, :].copy())
+            self.generation_best_Y.append(self.Y[generation_best_index])
+            self.all_history_Y.append(self.Y)
 
-            tqdm_bar.set_postfix_str(f"Loss: {self.gbest_y[0]:.5f}")
+            # update global best
+            if self.best_y > self.generation_best_Y[-1]:
+                self.best_x = self.generation_best_X[-1]
+                self.best_y = self.generation_best_Y[-1]
+
+            tqdm_bar.set_postfix_str(f"Loss: {self.best_y:.5f}")
 
             if time.time() - start_time > time_limit:
                 break
 
-        self.best_x, self.best_y = self.gbest_x, self.gbest_y
-
         tqdm_bar.close()
 
-        # TODO: why do i need best_y[0] instead of returning best_y?
-        return self.best_x, self.best_y[0]
+        return self.best_x, self.best_y
 
 
-class ParticleSwarm(Algorithm):
+class DifferentialEvolution(Algorithm):
 
     @dataclass
     class Config(SearchConfig):
-        population: int = 20
-        num_iters: int = 150
-        inertia: float = 0.8
+        num_iters: int = 100
+        population: int = 50
+        mut_prob: float = 0.3
+        F: float = 0.5
+        silent: bool = False
 
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         super().__init__(test_viewer, loss_func)
@@ -100,11 +106,12 @@ class ParticleSwarm(Algorithm):
 
         func = lambda test_orient: self.calc_loss(ref_position, ref_img, test_orient)
 
-        alg = TqdmPSO(
+        alg = TqdmDE(
             func,
-            pop=alg_config.population,
             num_iters=alg_config.num_iters,
-            inertia=alg_config.inertia,
+            pop=alg_config.population,
+            mut_prob=alg_config.mut_prob,
+            F=alg_config.F,
             silent=alg_config.silent,
         )
 
