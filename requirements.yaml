@@ -16,6 +16,7 @@ dependencies:
   - scipy
   - opencv
   - scikit-image
+  - ipywidgets
   - pip:
       - mujoco
       - scikit-opt

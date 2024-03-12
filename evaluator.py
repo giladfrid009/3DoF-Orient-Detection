@@ -22,7 +22,7 @@ class Evaluator:
 
             ref_img, ref_config = self.world_viewer.get_view_cropped(init_config, depth=False)
 
-            pred_orient = alg.find_orientation(ref_img, ref_config.position, alg_config)
+            pred_orient, _ = alg.find_orientation(ref_img, ref_config.position, alg_config)
 
             ref_depth, _ = self.world_viewer.get_view_cropped(
                 config=ref_config,

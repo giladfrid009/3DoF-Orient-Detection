@@ -48,7 +48,7 @@ class TqdmPSO(sko.PSO.PSO):
             verbose=(not silent),
         )
 
-    def run(self, time_limit: float = None) -> tuple[tuple[float, float, float], float]:
+    def run(self, time_limit: float) -> tuple[tuple[float, float, float], float]:
         start_time = time.time()
 
         tqdm_bar = tqdm(
@@ -69,14 +69,15 @@ class TqdmPSO(sko.PSO.PSO):
 
             tqdm_bar.set_postfix_str(f"Loss: {self.gbest_y[0]:.5f}")
 
-            if time_limit and time.time() - start_time > time_limit:
+            if time.time() - start_time > time_limit:
                 break
 
         self.best_x, self.best_y = self.gbest_x, self.gbest_y
 
         tqdm_bar.close()
 
-        return self.gbest_x
+        # TODO: why do i need best_y[0] instead of returning best_y?
+        return self.best_x, self.best_y[0]
 
 
 class ParticleSwarm(Algorithm):
@@ -86,7 +87,6 @@ class ParticleSwarm(Algorithm):
         population: int = 20
         num_iters: int = 150
         inertia: float = 0.8
-        silent: bool = False
 
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         super().__init__(test_viewer, loss_func)
@@ -96,7 +96,7 @@ class ParticleSwarm(Algorithm):
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
         alg_config: Config,
-    ) -> tuple[float, float, float]:
+    ) -> tuple[tuple[float, float, float], float]:
 
         func = lambda test_orient: self.calc_loss(ref_position, ref_img, test_orient)
 
@@ -108,6 +108,6 @@ class ParticleSwarm(Algorithm):
             silent=alg_config.silent,
         )
 
-        orient = alg.run(time_limit=alg_config.time_limit)
+        orient, loss = alg.run(time_limit=alg_config.time_limit)
 
-        return orient
+        return orient, loss

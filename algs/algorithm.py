@@ -10,7 +10,8 @@ from image_helpers import ImageHelpers
 
 @dataclass
 class SearchConfig:
-    time_limit: float = None
+    time_limit: float = 100
+    silent = False
 
 
 class Algorithm(ABC):
@@ -39,5 +40,5 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
         alg_config: SearchConfig,
-    ) -> tuple[float, float, float]:
+    ) -> tuple[tuple[float, float, float], float]:
         pass

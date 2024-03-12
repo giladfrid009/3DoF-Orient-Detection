@@ -14,9 +14,9 @@ class TqdmSA(sko.SA.SA):
     def __init__(
         self,
         func: Callable,
-        temp_init: float = 100,
+        init_temp: float = 100,
         num_iters: int = 150,
-        L: int = 300,
+        samples_per_temp: int = 300,
         stay_counter: int = 150,
         silent: bool = False,
     ):
@@ -25,26 +25,26 @@ class TqdmSA(sko.SA.SA):
         ----------------
         func : function
             The func you want to do optimal
-        temp_init :float
+        init_temp :float
             initial temperature
         num_iters : float
             number of iterations under every temperature
-        L : int
+        samples_per_temp : int
             num of iteration under every temperature
         """
         super().__init__(
             func=func,
             x0=[0, 0, 0],
-            T_max=temp_init,
+            T_max=init_temp,
             T_min=1e-15,
-            L=L,
+            L=samples_per_temp,
             max_stay_counter=stay_counter,
         )
 
         self.silent = silent
         self.iter_num = num_iters
 
-    def run(self, time_limit: float = None) -> tuple[float, float, float]:
+    def run(self, time_limit: float) -> tuple[tuple[float, float, float], float]:
         x_current, y_current = self.best_x, self.best_y
         stay_counter = 0
 
@@ -78,7 +78,7 @@ class TqdmSA(sko.SA.SA):
             else:
                 stay_counter = 0
 
-            if time_limit and time.time() - start_time > time_limit:
+            if time.time() - start_time > time_limit:
                 break
 
             if self.T < self.T_min:
@@ -91,18 +91,18 @@ class TqdmSA(sko.SA.SA):
 
         tqdm_bar.close()
 
-        return self.best_x
+        # TODO: WHATS THE DIFFERENCE BETEEN best_y and gbest_y?
+        return self.best_x, self.best_y
 
 
 class SimulatedAnnealing(Algorithm):
 
     @dataclass
     class Config(SearchConfig):
-        temp_init: float = 10
+        init_temp: float = 10
         num_iters: float = 50
-        L: int = 100
+        samples_per_temp: int = 100
         stay_counter: int = 150
-        silent: bool = False
 
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         super().__init__(test_viewer, loss_func)
@@ -112,19 +112,19 @@ class SimulatedAnnealing(Algorithm):
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
         alg_config: Config,
-    ) -> tuple[float, float, float]:
+    ) -> tuple[tuple[float, float, float], float]:
 
         func = lambda x: self.calc_loss(ref_position, ref_img, x)
 
         alg = TqdmSA(
             func,
-            temp_init=alg_config.temp_init,
+            init_temp=alg_config.init_temp,
             num_iters=alg_config.num_iters,
-            L=alg_config.L,
+            samples_per_temp=alg_config.samples_per_temp,
             stay_counter=alg_config.stay_counter,
             silent=alg_config.silent,
         )
 
-        orient = alg.run(time_limit=alg_config.time_limit)
+        orient, loss = alg.run(time_limit=alg_config.time_limit)
 
-        return orient
+        return orient, loss

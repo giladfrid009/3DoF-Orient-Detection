@@ -14,7 +14,6 @@ class RandomSampling(Algorithm):
     class Config(SearchConfig):
         num_samples: int = 1000
         rnd_seed: int = None
-        silent: bool = False
 
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         super().__init__(test_viewer, loss_func)
@@ -24,10 +23,7 @@ class RandomSampling(Algorithm):
         ref_img: np.ndarray,
         ref_position: tuple[float, float, float],
         alg_config: Config,
-    ) -> tuple[float, float, float]:
-
-        start_time = time.time()
-
+    ) -> tuple[tuple[float, float, float], float]:
         lowest_loss = np.inf
         best_orient = None
 
@@ -41,6 +37,8 @@ class RandomSampling(Algorithm):
             leave=False,
         )
 
+        start_time = time.time()
+
         for test_orient in tqdm_bar:
             loss = self.calc_loss(ref_position, ref_img, test_orient)
 
@@ -50,9 +48,9 @@ class RandomSampling(Algorithm):
 
             tqdm_bar.set_postfix_str(f"Loss: {lowest_loss:.5f}")
 
-            if alg_config.time_limit and time.time() - start_time > alg_config.time_limit:
+            if time.time() - start_time > alg_config.time_limit:
                 break
 
         tqdm_bar.close()
 
-        return best_orient
+        return best_orient, lowest_loss
