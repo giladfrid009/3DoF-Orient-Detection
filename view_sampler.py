@@ -58,8 +58,20 @@ class ViewSampler:
         depth: bool = False,
         margin_factor: float = 1.2,
     ) -> tuple[np.ndarray, ObjectConfig]:
+
+        if depth:
+            # we first get the rgb image to calculate the mask
+            rgb_image, config = self.get_view(config, depth=False)
+            mask = ImageHelpers.calc_mask(rgb_image, bg_value=0)
+            x1, y1, x2, y2 = ImageHelpers.calc_bboxes(mask, margin_factor)
+
+            # then we get the depth image and crop it
+            image = self._render_image(depth=True)
+            cropped = image[x1:x2, y1:y2, :]
+            return cropped, config
+
         image, config = self.get_view(config, depth)
-        mask = ImageHelpers.calc_mask(image, bg_value=0, orig_dims=False)
+        mask = ImageHelpers.calc_mask(image, bg_value=0)
         x1, y1, x2, y2 = ImageHelpers.calc_bboxes(mask, margin_factor)
         cropped = image[x1:x2, y1:y2, :]
         return cropped, config

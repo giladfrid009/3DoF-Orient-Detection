@@ -38,7 +38,8 @@
             specular="0 0 0" />
         <map
             fogend="5"
-            znear="0.05" />
+            znear="0.05" 
+            zfar="20.0" />
         <scale
             forcewidth="0.01"
             contactwidth="0.1"

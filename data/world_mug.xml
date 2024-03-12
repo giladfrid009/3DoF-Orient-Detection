@@ -25,7 +25,8 @@
         <map
             fogstart="3"
             fogend="5"
-            znear="0.05" />
+            znear="0.05" 
+            zfar="20.0" />
         <quality
             shadowsize="2048" />
         <scale
