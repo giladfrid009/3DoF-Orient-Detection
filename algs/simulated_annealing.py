@@ -7,7 +7,7 @@ from typing import Callable
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from tqdm.auto import tqdm
-from metric_funcs import *
+from loss_funcs import *
 
 
 class TqdmSA(sko.SA.SA):
@@ -104,8 +104,8 @@ class SimulatedAnnealing(Algorithm):
         stay_counter: int = 150
         silent: bool = False
 
-    def __init__(self, test_viewer: ViewSampler, metric_func: MetricFunc):
-        super().__init__(test_viewer, metric_func)
+    def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
+        super().__init__(test_viewer, loss_func)
 
     def find_orientation(
         self,

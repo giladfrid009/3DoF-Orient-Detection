@@ -7,7 +7,7 @@ from typing import Callable
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from tqdm.auto import tqdm
-from metric_funcs import *
+from loss_funcs import *
 
 
 class TqdmPSO(sko.PSO.PSO):
@@ -49,12 +49,6 @@ class TqdmPSO(sko.PSO.PSO):
         )
 
     def run(self, time_limit: float = None) -> tuple[tuple[float, float, float], float]:
-        """
-        Parameters:
-        --------------------
-        time_limit : float
-            The maximum time to run the algorithm. If None, the algorithm will run until max_iter is reached.
-        """
         start_time = time.time()
 
         tqdm_bar = tqdm(
@@ -94,8 +88,8 @@ class ParticleSwarm(Algorithm):
         inertia: float = 0.8
         silent: bool = False
 
-    def __init__(self, test_viewer: ViewSampler, metric_func: MetricFunc):
-        super().__init__(test_viewer, metric_func)
+    def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
+        super().__init__(test_viewer, loss_func)
 
     def find_orientation(
         self,
@@ -104,7 +98,7 @@ class ParticleSwarm(Algorithm):
         config: Config,
     ) -> tuple[float, float, float]:
 
-        func = lambda x: self.calc_loss(ref_position, ref_img, x)
+        func = lambda test_orient: self.calc_loss(ref_position, ref_img, test_orient)
 
         alg = TqdmPSO(
             func,

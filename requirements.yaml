@@ -18,5 +18,6 @@ dependencies:
   - scikit-image
   - pip:
       - mujoco
+      - scikit-opt
 platforms:
   - linux-64

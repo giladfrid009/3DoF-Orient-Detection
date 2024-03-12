@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from view_sampler import ViewSampler
 from manipulated_object import ObjectConfig
-from metric_funcs import MetricFunc
+from loss_funcs import LossFunc
 from image_helpers import ImageHelpers
 
 
@@ -14,9 +14,9 @@ class SearchConfig:
 
 
 class Algorithm(ABC):
-    def __init__(self, test_viewer: ViewSampler, metric_func: MetricFunc):
+    def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         self.test_viewer = test_viewer
-        self.metric_func = metric_func
+        self.loss_func = loss_func
 
     def calc_loss(
         self,
@@ -30,7 +30,7 @@ class Algorithm(ABC):
         ref_img = ImageHelpers.pad_to_shape(ref_img, pad_shape)
         test_img = ImageHelpers.pad_to_shape(test_img, pad_shape)
 
-        loss = self.metric_func(ref_img, test_img)
+        loss = self.loss_func(ref_img, test_img)
         return loss
 
     @abstractmethod
