@@ -2,7 +2,7 @@ import mujoco as mj
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from manipulated_object import ManipulatedObject, ObjectConfig
+from manipulated_object import ManipulatedObject, ObjectPosition
 
 
 class Simulator:
@@ -25,8 +25,8 @@ class Simulator:
         self._depth_renderer = mj.Renderer(self._model, resolution[0], resolution[1])
         self._depth_renderer.enable_depth_rendering()
 
-    def set_object_position(self, obj_pos: tuple[float, float, float]):
-        self._object.set_position(obj_pos)
+    def set_object_location(self, obj_loc: tuple[float, float, float]):
+        self._object.set_location(obj_loc)
 
     def set_object_orientation(self, orientation):
         self._object.set_orientation(orientation)
@@ -34,8 +34,8 @@ class Simulator:
     def get_object_orientation(self) -> tuple[float, float, float]:
         return self._object.get_orientation()
 
-    def get_object_config(self) -> ObjectConfig:
-        return ObjectConfig.from_object(self._object)
+    def get_object_position(self) -> ObjectPosition:
+        return ObjectPosition.from_object(self._object)
 
     def render(self, cam_rot: tuple[float, float, float], cam_pos: tuple[float, float, float]) -> np.ndarray:
         mj.mj_forward(self._model, self._data)

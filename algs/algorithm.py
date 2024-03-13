@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from view_sampler import ViewSampler
-from manipulated_object import ObjectConfig
+from manipulated_object import ObjectPosition
 from loss_funcs import LossFunc
 from image_helpers import ImageHelpers
 
@@ -26,11 +26,11 @@ class Algorithm(ABC):
 
     def calc_loss(
         self,
-        ref_position: tuple[float, float, float],
+        ref_location: tuple[float, float, float],
         ref_img: np.ndarray,
         test_orient: tuple[float, float, float],
     ) -> float:
-        test_img, _ = self._test_viewer.get_view_cropped(ObjectConfig(test_orient, ref_position))
+        test_img, _ = self._test_viewer.get_view_cropped(ObjectPosition(test_orient, ref_location))
 
         pad_shape = np.maximum(ref_img.shape, test_img.shape)
         ref_img = ImageHelpers.pad_to_shape(ref_img, pad_shape)
@@ -47,7 +47,7 @@ class Algorithm(ABC):
     def find_orientation(
         self,
         ref_img: np.ndarray,
-        ref_position: tuple[float, float, float],
+        ref_location: tuple[float, float, float],
         alg_config: SearchConfig,
     ) -> tuple[tuple[float, float, float], float]:
         pass

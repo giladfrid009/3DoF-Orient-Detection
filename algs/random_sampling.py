@@ -21,7 +21,7 @@ class RandomSampling(Algorithm):
     def find_orientation(
         self,
         ref_img: np.ndarray,
-        ref_position: tuple[float, float, float],
+        ref_location: tuple[float, float, float],
         alg_config: Config,
     ) -> tuple[tuple[float, float, float], float]:
         lowest_loss = np.inf
@@ -40,7 +40,7 @@ class RandomSampling(Algorithm):
         start_time = time.time()
 
         for test_orient in tqdm_bar:
-            loss = self.calc_loss(ref_position, ref_img, test_orient)
+            loss = self.calc_loss(ref_location, ref_img, test_orient)
 
             if loss < lowest_loss:
                 lowest_loss = loss

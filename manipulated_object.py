@@ -13,9 +13,9 @@ class ManipulatedObject:
         self._data = mj_data
         self._jntadr = mj_model.body("manipulated_object").jntadr[0]
 
-    def set_position(self, position: tuple[float, float, float]):
-        assert len(position) == 3
-        self._data.qpos[self._jntadr : self._jntadr + 3] = position
+    def set_location(self, location: tuple[float, float, float]):
+        assert len(location) == 3
+        self._data.qpos[self._jntadr : self._jntadr + 3] = location
 
     def set_orientation(self, orient: tuple[float, float, float]):
         assert len(orient) == 3
@@ -27,15 +27,15 @@ class ManipulatedObject:
         rotation = Rotation.from_quat(quat).as_euler("xyz", degrees=False)
         return rotation
 
-    def get_position(self) -> tuple[float, float, float]:
+    def get_location(self) -> tuple[float, float, float]:
         return self._data.qpos[self._jntadr : self._jntadr + 3]
 
 
 @dataclass(frozen=True)
-class ObjectConfig:
+class ObjectPosition:
     orientation: tuple[float, float, float]
-    position: tuple[float, float, float]
+    location: tuple[float, float, float]
 
     @staticmethod
     def from_object(obj_state: ManipulatedObject):
-        return ObjectConfig(obj_state.get_orientation(), obj_state.get_position())
+        return ObjectPosition(obj_state.get_orientation(), obj_state.get_location())

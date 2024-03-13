@@ -25,7 +25,7 @@ class RandomRestarts(Algorithm):
 
     def calc_loss(
         self,
-        ref_position: tuple[float, float, float],
+        ref_location: tuple[float, float, float],
         ref_img: np.ndarray,
         test_orient: tuple[float, float, float],
     ) -> float:
@@ -34,7 +34,7 @@ class RandomRestarts(Algorithm):
     def find_orientation(
         self,
         ref_img: np.ndarray,
-        ref_position: tuple[float, float, float],
+        ref_location: tuple[float, float, float],
         alg_config: Config,
     ) -> tuple[float, float, float]:
 
@@ -58,7 +58,7 @@ class RandomRestarts(Algorithm):
             # update the time limit for the inner algorithm
             inner_config.time_limit = min(inner_config.time_limit, alg_config.time_limit - (time.time() - start_time))
 
-            orient, loss = self.inner_alg.find_orientation(ref_img, ref_position, inner_config)
+            orient, loss = self.inner_alg.find_orientation(ref_img, ref_location, inner_config)
 
             if loss < lowest_loss:
                 lowest_loss = loss

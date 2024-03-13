@@ -4,8 +4,6 @@ import time
 import math
 from scipy.spatial.transform import Rotation
 
-import cv2 as cv
-from manipulated_object import ObjectConfig
 
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
@@ -42,7 +40,7 @@ class UniformSampling(Algorithm):
     def find_orientation(
         self,
         ref_img: np.ndarray,
-        ref_position: tuple[float, float, float],
+        ref_location: tuple[float, float, float],
         alg_config: Config,
     ) -> tuple[tuple[float, float, float], float]:
         lowest_loss = np.inf
@@ -55,17 +53,15 @@ class UniformSampling(Algorithm):
             axes = UniformSampling._uniform_rnd_axes(n, rng)
             axes = np.repeat(axes, n, axis=0)
             rots = rng.uniform(0, 2 * np.pi, size=n * n)
-            rot_vec = np.expand_dims(rots, axis=-1) * axes
-            orients = Rotation.from_rotvec(rot_vec).as_euler("xyz")
-
         else:
             axes = UniformSampling._uniform_det_axes(n)
             axes = np.repeat(axes, n, axis=0)
             rots = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
             rots = np.tile(rots, n)
-            rot_vec = np.expand_dims(rots, axis=-1) * axes
-            orients = Rotation.from_rotvec(rot_vec).as_euler("xyz")
-            rng.shuffle(orients, axis=0)
+
+        rot_vec = np.expand_dims(rots, axis=-1) * axes
+        orients = Rotation.from_rotvec(rot_vec).as_euler("xyz")
+        rng.shuffle(orients, axis=0)
 
         tqdm_bar = tqdm(
             iterable=orients,
@@ -76,7 +72,7 @@ class UniformSampling(Algorithm):
         start_time = time.time()
 
         for test_orient in tqdm_bar:
-            loss = self.calc_loss(ref_position, ref_img, test_orient)
+            loss = self.calc_loss(ref_location, ref_img, test_orient)
 
             if loss < lowest_loss:
                 lowest_loss = loss

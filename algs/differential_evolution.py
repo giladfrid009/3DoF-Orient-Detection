@@ -100,11 +100,11 @@ class DifferentialEvolution(Algorithm):
     def find_orientation(
         self,
         ref_img: np.ndarray,
-        ref_position: tuple[float, float, float],
+        ref_location: tuple[float, float, float],
         alg_config: Config,
     ) -> tuple[tuple[float, float, float], float]:
 
-        func = lambda test_orient: self.calc_loss(ref_position, ref_img, test_orient)
+        func = lambda test_orient: self.calc_loss(ref_location, ref_img, test_orient)
 
         alg = TqdmDE(
             func,
