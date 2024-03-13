@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-
-from view_converter import ViewConverter
+from scipy.spatial.transform import Rotation
 
 
 class ManipulatedObject:
@@ -18,13 +17,14 @@ class ManipulatedObject:
         assert len(position) == 3
         self._data.qpos[self._jntadr : self._jntadr + 3] = position
 
-    def set_orientation(self, orientation: tuple[float, float, float]):
-        assert len(orientation) == 3
-        orient_quat = ViewConverter.euler_to_quat(orientation)
+    def set_orientation(self, orient: tuple[float, float, float]):
+        assert len(orient) == 3
+        orient_quat = Rotation.from_euler("xyz", orient, degrees=False).as_quat()
         self._data.qpos[self._jntadr + 3 : self._jntadr + 7] = orient_quat
 
     def get_orientation(self) -> tuple[float, float, float]:
-        rotation = ViewConverter.quat_to_euler(self._data.qpos[self._jntadr + 3 : self._jntadr + 7])
+        quat = self._data.qpos[self._jntadr + 3 : self._jntadr + 7]
+        rotation = Rotation.from_quat(quat).as_euler("xyz", degrees=False)
         return rotation
 
     def get_position(self) -> tuple[float, float, float]:

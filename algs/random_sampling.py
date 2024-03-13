@@ -27,9 +27,9 @@ class RandomSampling(Algorithm):
         lowest_loss = np.inf
         best_orient = None
 
-        rnd_generator = np.random.default_rng(alg_config.rnd_seed)
+        rng = np.random.default_rng(alg_config.rnd_seed)
 
-        rnd_orients = rnd_generator.uniform(low=0, high=2 * np.pi, size=(alg_config.num_samples, 3)).tolist()
+        rnd_orients = rng.uniform(low=0, high=2 * np.pi, size=(alg_config.num_samples, 3)).tolist()
 
         tqdm_bar = tqdm(
             iterable=rnd_orients,

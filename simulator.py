@@ -1,7 +1,8 @@
 import mujoco as mj
 import numpy as np
+from scipy.spatial.transform import Rotation
+
 from manipulated_object import ManipulatedObject, ObjectConfig
-from view_converter import ViewConverter
 
 
 class Simulator:
@@ -39,7 +40,8 @@ class Simulator:
     def render(self, cam_rot: tuple[float, float, float], cam_pos: tuple[float, float, float]) -> np.ndarray:
         mj.mj_forward(self._model, self._data)
         self._data.cam_xpos = cam_pos
-        self._data.cam_xmat = ViewConverter.euler_to_matrix(cam_rot).flatten()
+        self._data.cam_xmat = Rotation.from_euler("xyz", cam_rot).as_matrix().flatten()
+
         self._renderer.update_scene(self._data, camera=0)
         image = self._renderer.render()
         return image
@@ -47,7 +49,7 @@ class Simulator:
     def render_depth(self, cam_rot: tuple[float, float, float], cam_pos: tuple[float, float, float]) -> np.ndarray:
         mj.mj_forward(self._model, self._data)
         self._data.cam_xpos = cam_pos
-        self._data.cam_xmat = ViewConverter.euler_to_matrix(cam_rot).flatten()
+        self._data.cam_xmat = Rotation.from_euler("xyz", cam_rot).as_matrix().flatten()
         self._depth_renderer.update_scene(self._data, camera=0)
         image = self._depth_renderer.render()
         return image
