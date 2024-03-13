@@ -61,7 +61,7 @@ class UniformSampling(Algorithm):
         else:
             axes = UniformSampling._uniform_det_axes(n)
             axes = np.repeat(axes, n, axis=0)
-            rots = np.linspace(0, 2 * np.pi, size=n, endpoint=False)
+            rots = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
             rots = np.tile(rots, n)
             rot_vec = np.expand_dims(rots, axis=-1) * axes
             orients = Rotation.from_rotvec(rot_vec).as_euler("xyz")
