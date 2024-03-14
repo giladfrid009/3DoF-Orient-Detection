@@ -21,7 +21,7 @@ class Algorithm(ABC):
         self.loss_func = loss_func
         self._callback_funcs = []
 
-    def register_loss_callback(self, callback: Callable[[tuple[float, float, float], float], None]):
+    def register_callback(self, callback: Callable[[dict[str, float]], None]):
         self._callback_funcs.append(callback)
 
     def calc_loss(
@@ -38,8 +38,9 @@ class Algorithm(ABC):
 
         loss = self.loss_func(ref_img, test_img)
 
+        x, y, z = test_orient
         for callback in self._callback_funcs:
-            callback(test_orient, loss)
+            callback(x=x, y=y, z=z, loss=loss)
 
         return loss
 
