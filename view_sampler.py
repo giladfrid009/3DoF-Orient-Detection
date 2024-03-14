@@ -37,6 +37,12 @@ class ViewSampler:
     def camera_config(self) -> CameraConfig:
         return self._camera_config
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     def _render_image(self, depth: bool):
         if depth:
             image = self.simulator.render_depth(self.camera_config.rotation, self.camera_config.location)
@@ -77,3 +83,6 @@ class ViewSampler:
         x1, y1, x2, y2 = ImageHelpers.calc_bboxes(mask, margin_factor)
         cropped = image[x1:x2, y1:y2, :]
         return cropped, position
+
+    def close(self):
+        self.simulator.close()

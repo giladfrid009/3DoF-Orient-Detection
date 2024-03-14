@@ -59,3 +59,7 @@ class Simulator:
         iters = int(seconds / self._model.opt.timestep)
         for _ in range(iters):
             mj.mj_step(self._model, self._data)
+
+    def close(self):
+        self._renderer.close()
+        self._depth_renderer.close()
