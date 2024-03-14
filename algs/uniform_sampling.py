@@ -46,18 +46,18 @@ class UniformSampling(Algorithm):
         lowest_loss = np.inf
         best_orient = None
 
-        n = math.ceil(math.sqrt(alg_config.min_samples))
+        n = math.ceil(math.pow(alg_config.min_samples, 1 / 3))
         rng = np.random.default_rng(alg_config.rnd_seed)
 
         if alg_config.randomized:
-            axes = UniformSampling._uniform_rnd_axes(n, rng)
+            axes = UniformSampling._uniform_rnd_axes(n**2, rng)
             axes = np.repeat(axes, n, axis=0)
-            rots = rng.uniform(0, 2 * np.pi, size=n * n)
+            rots = rng.uniform(0, 2 * np.pi, size=n**3)
         else:
-            axes = UniformSampling._uniform_det_axes(n)
+            axes = UniformSampling._uniform_det_axes(n**2)
             axes = np.repeat(axes, n, axis=0)
             rots = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
-            rots = np.tile(rots, n)
+            rots = np.tile(rots, n**2)
 
         rot_vec = np.expand_dims(rots, axis=-1) * axes
         orients = Rotation.from_rotvec(rot_vec).as_euler("xyz")

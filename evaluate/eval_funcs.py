@@ -61,21 +61,20 @@ class EvalFunc(ABC):
 
 
 class IOU_Diff(EvalFunc):
-    def __init__(self, bg_depth: float = 20, max_depth: float = 1.0, method: str = "mae"):
-        self.bg_depth = bg_depth
-        self.max_depth = max_depth
+    def __init__(self, obj_depth: float, method: str = "mae"):
+        self.obj_depth = obj_depth
         self.method = method.lower()
         assert self.method in ["mae", "mse"]
 
     def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
-        mask1 = depth_truth < self.bg_depth
-        mask2 = depth_other < self.bg_depth
+        mask1 = depth_truth > 0
+        mask2 = depth_other > 0
 
         both_appear = mask1 & mask2
         one_appears = mask1 ^ mask2
 
         diffs = np.zeros_like(depth_truth, dtype=np.float64)
-        diffs += self.max_depth * one_appears
+        diffs += self.obj_depth * one_appears
 
         if self.method == "mae":
             diffs += np.abs(both_appear * (depth_truth - depth_other))
@@ -85,14 +84,14 @@ class IOU_Diff(EvalFunc):
         return np.mean(diffs)
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        masks1 = batch_truth < self.bg_depth
-        masks2 = batch_other < self.bg_depth
+        masks1 = batch_truth > 0
+        masks2 = batch_other > 0
 
         both_appear = masks1 & masks2
         one_appears = masks1 ^ masks2
 
         diffs = np.zeros_like(batch_truth, dtype=np.float64)
-        diffs += self.max_depth * one_appears
+        diffs += self.obj_depth * one_appears
         diffs += np.abs(both_appear * (batch_truth - batch_other))
 
         if self.method == "mae":

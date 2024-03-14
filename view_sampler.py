@@ -50,11 +50,17 @@ class ViewSampler:
         depth: bool = False,
         allow_simulation: bool = True,
     ) -> tuple[np.ndarray, ObjectPosition]:
-        # TODO: if rendering depth then first render RGB image, extract mask, and afterwards render with depth=True but zero-out everything out of the mask
+
         self.simulator.set_object_location(position.location)
         self.simulator.set_object_orientation(position.orientation)
         self.simulator.simulate_seconds(self._simulation_time if allow_simulation else 0)
-        image = self._render_image(depth)
+        image = self._render_image(depth=False)
+
+        if depth:
+            mask = ImageHelpers.calc_mask(image, bg_value=0)
+            image = self._render_image(depth=True)
+            image[~mask] = 0
+
         position = self.simulator.get_object_position()
         return image, position
 
@@ -66,18 +72,7 @@ class ViewSampler:
         allow_simulation: bool = True,
     ) -> tuple[np.ndarray, ObjectPosition]:
 
-        if depth:
-            # we first get the rgb image to calculate the mask
-            rgb_image, position = self.get_view(position, depth=False, allow_simulation=allow_simulation)
-            mask = ImageHelpers.calc_mask(rgb_image, bg_value=0)
-            x1, y1, x2, y2 = ImageHelpers.calc_bboxes(mask, margin_factor)
-
-            # then we get the depth image and crop it
-            image = self._render_image(depth=True)
-            cropped = image[x1:x2, y1:y2, :]
-            return cropped, position
-
-        image, position = self.get_view(position, depth)
+        image, position = self.get_view(position, depth, allow_simulation=allow_simulation)
         mask = ImageHelpers.calc_mask(image, bg_value=0)
         x1, y1, x2, y2 = ImageHelpers.calc_bboxes(mask, margin_factor)
         cropped = image[x1:x2, y1:y2, :]
