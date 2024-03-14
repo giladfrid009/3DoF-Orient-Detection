@@ -14,34 +14,46 @@ class Evaluator:
         self.world_viewer = world_viewer
         self.eval_func = eval_func
 
-    def evaluate(self, alg: Algorithm, alg_config: SearchConfig, eval_positions: Iterable[ObjectPosition]) -> list[float]:
-        losses = []
-
+    def evaluate(
+        self,
+        alg: Algorithm,
+        alg_config: SearchConfig,
+        eval_positions: Iterable[ObjectPosition],
+    ) -> list[float]:
         print(f"Evaluating Algorithm: {type(alg).__name__} | Config: {alg_config}")
 
-        for init_position in tqdm(eval_positions, desc=f"Evaluating: "):
+        losses = []
+        alg.set_mode(eval=True)
 
-            ref_img, ref_pos = self.world_viewer.get_view_cropped(init_position, depth=False)
+        for position in tqdm(eval_positions, desc=f"Evaluating: "):
 
-            pred_orient, _ = alg.find_orientation(ref_img, ref_pos.location, alg_config)
+            ref_img, _ = self.world_viewer.get_view_cropped(
+                position,
+                depth=False,
+                allow_simulation=False,
+            )
+
+            pred_orient, _ = alg.find_orientation(ref_img, position.location, alg_config)
 
             ref_depth, _ = self.world_viewer.get_view_cropped(
-                position=ref_pos,
+                position=position,
                 depth=True,
                 allow_simulation=False,
             )
 
             pred_depth, _ = self.world_viewer.get_view_cropped(
-                position=ObjectPosition(pred_orient, ref_pos.location),
+                position=ObjectPosition(pred_orient, position.location),
                 depth=True,
                 allow_simulation=False,
             )
 
             pad_shape = np.maximum(ref_depth.shape, pred_depth.shape)
-            ref_depth = ImageHelpers.pad_to_shape(ref_depth, pad_shape, pad_value=100)
-            pred_depth = ImageHelpers.pad_to_shape(pred_depth, pad_shape, pad_value=100)
+            ref_depth = ImageHelpers.pad_to_shape(ref_depth, pad_shape)
+            pred_depth = ImageHelpers.pad_to_shape(pred_depth, pad_shape)
 
             loss = self.eval_func(ref_depth, pred_depth)
             losses.append(loss)
+
+        alg.set_mode(eval=False)
 
         return losses

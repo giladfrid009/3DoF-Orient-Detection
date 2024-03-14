@@ -19,10 +19,14 @@ class Algorithm(ABC):
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         self._test_viewer = test_viewer
         self.loss_func = loss_func
+        self.eval_mode = False
         self._callback_funcs = []
 
     def register_callback(self, callback: Callable[[dict[str, float]], None]):
         self._callback_funcs.append(callback)
+
+    def set_mode(self, eval: bool):
+        self.eval_mode = eval
 
     def calc_loss(
         self,
@@ -30,7 +34,10 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         test_orient: tuple[float, float, float],
     ) -> float:
-        test_img, _ = self._test_viewer.get_view_cropped(ObjectPosition(test_orient, ref_location))
+        test_img, _ = self._test_viewer.get_view_cropped(
+            position=ObjectPosition(test_orient, ref_location),
+            allow_simulation=self.eval_mode == False,
+        )
 
         pad_shape = np.maximum(ref_img.shape, test_img.shape)
         ref_img = ImageHelpers.pad_to_shape(ref_img, pad_shape)
