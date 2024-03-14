@@ -50,6 +50,7 @@ class ViewSampler:
         depth: bool = False,
         allow_simulation: bool = True,
     ) -> tuple[np.ndarray, ObjectPosition]:
+        # TODO: if rendering depth then first render RGB image, extract mask, and afterwards render with depth=True but zero-out everything out of the mask
         self.simulator.set_object_location(position.location)
         self.simulator.set_object_orientation(position.orientation)
         self.simulator.simulate_seconds(self._simulation_time if allow_simulation else 0)

@@ -31,17 +31,17 @@ class Evaluator:
                 allow_simulation=False,
             )
 
-            test_depth, _ = self.world_viewer.get_view_cropped(
+            pred_depth, _ = self.world_viewer.get_view_cropped(
                 position=ObjectPosition(pred_orient, ref_pos.location),
                 depth=True,
                 allow_simulation=False,
             )
 
-            pad_shape = np.maximum(ref_depth.shape, test_depth.shape)
+            pad_shape = np.maximum(ref_depth.shape, pred_depth.shape)
             ref_depth = ImageHelpers.pad_to_shape(ref_depth, pad_shape, pad_value=100)
-            test_depth = ImageHelpers.pad_to_shape(test_depth, pad_shape, pad_value=100)
+            pred_depth = ImageHelpers.pad_to_shape(pred_depth, pad_shape, pad_value=100)
 
-            loss = self.eval_func(ref_depth, test_depth)
+            loss = self.eval_func(ref_depth, pred_depth)
             losses.append(loss)
 
         return losses

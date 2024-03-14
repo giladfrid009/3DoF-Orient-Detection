@@ -61,9 +61,9 @@ class EvalFunc(ABC):
 
 
 class IOU_Diff(EvalFunc):
-    def __init__(self, bg_depth: int = 20, diff_value: float = 1.0, method: str = "mae"):
+    def __init__(self, bg_depth: float = 20, max_depth: float = 1.0, method: str = "mae"):
         self.bg_depth = bg_depth
-        self.diff_value = diff_value
+        self.max_depth = max_depth
         self.method = method.lower()
         assert self.method in ["mae", "mse"]
 
@@ -75,7 +75,7 @@ class IOU_Diff(EvalFunc):
         one_appears = mask1 ^ mask2
 
         diffs = np.zeros_like(depth_truth, dtype=np.float64)
-        diffs += self.diff_value * one_appears
+        diffs += self.max_depth * one_appears
 
         if self.method == "mae":
             diffs += np.abs(both_appear * (depth_truth - depth_other))
@@ -92,7 +92,7 @@ class IOU_Diff(EvalFunc):
         one_appears = masks1 ^ masks2
 
         diffs = np.zeros_like(batch_truth, dtype=np.float64)
-        diffs += self.diff_value * one_appears
+        diffs += self.max_depth * one_appears
         diffs += np.abs(both_appear * (batch_truth - batch_other))
 
         if self.method == "mae":
