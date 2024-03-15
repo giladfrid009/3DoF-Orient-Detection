@@ -60,18 +60,17 @@ class EvalFunc(ABC):
         return losses
 
 
-class IOU_Diff(EvalFunc):
+class XorDiff(EvalFunc):
     def __init__(self, obj_depth: float, method: str = "mae"):
         self.obj_depth = obj_depth
         self.method = method.lower()
         assert self.method in ["mae", "mse"]
 
     def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
-        mask1 = depth_truth > 0
-        mask2 = depth_other > 0
-
-        both_appear = mask1 & mask2
-        one_appears = mask1 ^ mask2
+        mask_truth = depth_truth > 0
+        mask_other = depth_other > 0
+        both_appear = mask_truth & mask_other
+        one_appears = mask_truth ^ mask_other
 
         diffs = np.zeros_like(depth_truth, dtype=np.float64)
         diffs += self.obj_depth * one_appears
@@ -92,11 +91,66 @@ class IOU_Diff(EvalFunc):
 
         diffs = np.zeros_like(batch_truth, dtype=np.float64)
         diffs += self.obj_depth * one_appears
-        diffs += np.abs(both_appear * (batch_truth - batch_other))
 
         if self.method == "mae":
             diffs += np.abs(both_appear * (batch_truth - batch_other))
         elif self.method == "mse":
             diffs += (both_appear * (batch_truth - batch_other)) ** 2
 
-        return np.mean(diffs, axis=(1, 2, 3))
+        return np.mean(diffs, axis=(1, 2, 3)).tolist()
+
+
+class NormXorDiff(EvalFunc):
+    def __init__(self, obj_depth: float, method: str = "mae", norm: str = "euclidean"):
+        self.obj_depth = obj_depth
+        self.method = method.lower()
+        self.norm = norm.lower()
+        assert self.norm in ["euclidean", "min-max", "mean"]
+        assert self.method in ["mae", "mse"]
+
+    def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
+        mask_truth = depth_truth > 0
+        mask_other = depth_other > 0
+        both_appear = mask_truth & mask_other
+        one_appears = mask_truth ^ mask_other
+
+        diffs = np.zeros_like(depth_truth, dtype=np.float64)
+        diffs += self.obj_depth * one_appears
+
+        if self.method == "mae":
+            diffs += np.abs(both_appear * (depth_truth - depth_other))
+        elif self.method == "mse":
+            diffs += (both_appear * (depth_truth - depth_other)) ** 2
+
+        if self.norm == "euclidean":
+            denom = np.sqrt(np.mean(depth_truth**2, dtype=np.float64))
+        elif self.norm == "min-max":
+            denom = depth_truth.max() - depth_truth.min()
+        elif self.norm == "mean":
+            denom = depth_truth.mean()
+
+        return np.sqrt(np.mean(diffs)) / denom
+
+    def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
+        masks_truth = batch_truth > 0
+        masks_other = batch_other > 0
+        both_appear = masks_truth & masks_other
+        one_appears = masks_truth ^ masks_other
+
+        diffs = np.zeros_like(batch_truth, dtype=np.float64)
+        diffs += self.obj_depth * one_appears
+
+        if self.method == "mae":
+            diffs += np.abs(both_appear * (batch_truth - batch_other))
+        elif self.method == "mse":
+            diffs += (both_appear * (batch_truth - batch_other)) ** 2
+
+        if self.norm == "euclidean":
+            denom = np.sqrt(np.mean(batch_truth**2, axis=(1, 2, 3), dtype=np.float64))
+        elif self.norm == "min-max":
+            denom = np.max(batch_truth, axis=(1, 2, 3)) - np.min(batch_truth, axis=(1, 2, 3))
+        elif self.norm == "mean":
+            denom = np.mean(batch_truth, axis=(1, 2, 3))
+
+        normalized = np.sqrt(np.mean(diffs, axis=(1, 2, 3))) / denom
+        return normalized.tolist()

@@ -1,5 +1,5 @@
 import numpy as np
-
+import skimage
 
 class ImageHelpers:
     """
@@ -7,6 +7,15 @@ class ImageHelpers:
     Image batch dim is assumed to be [N, W, H, 3]
     Single image dim is assumed to be [W, H, 3]
     """
+
+    @staticmethod
+    def depth2rgb(img: np.ndarray) -> np.ndarray:
+        if img.shape[-1] == 1:
+            img = img.reshape(img.shape[0], img.shape[1])
+        img[img < 0] = 0
+        img = 255 * img
+        img = skimage.color.gray2rgb(255 * img)
+        return img.astype(np.uint8)
 
     @staticmethod
     def calc_mask(images: np.ndarray, bg_value: int = 0, orig_dims: bool = False) -> np.ndarray:
