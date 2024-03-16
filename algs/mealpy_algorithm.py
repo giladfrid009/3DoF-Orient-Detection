@@ -52,12 +52,10 @@ class MealAlgorithm(Algorithm):
 
             n_workers: The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
             termination: The termination dictionary or an instance of Termination class
-            seed: seed for random number generation needed to be *explicitly* set to int value
             log_dest: The destination of the logging output, 'console' or explicit file path. If silent is True, this is ignored.
             save_pop: Save the population in history or not. Useful for plotting, but otherwise leave as default.
         """
 
-        seed: int = None
         run_mode: str = "single"
         n_workers: int = None
         save_pop: bool = None
@@ -104,7 +102,7 @@ class MealAlgorithm(Algorithm):
             n_workers=alg_config.n_workers,
             termination=termination,
             starting_solutions=None,
-            seed=alg_config.seed,
+            seed=alg_config.rnd_seed,
         )
 
         return best.solution, best.target.fitness

@@ -16,7 +16,6 @@ class UniformSampling(Algorithm):
     class Config(SearchConfig):
         min_samples: int = 1000
         randomized: bool = False
-        rnd_seed: int = None
 
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         super().__init__(test_viewer, loss_func)

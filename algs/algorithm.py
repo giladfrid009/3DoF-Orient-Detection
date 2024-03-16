@@ -12,6 +12,7 @@ from utils.image_helpers import ImageHelpers
 @dataclass
 class SearchConfig:
     time_limit: float = 100
+    rnd_seed: int = None
     silent = False
 
 
