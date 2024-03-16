@@ -4,7 +4,7 @@ from mealpy.utils.agent import Agent
 from mealpy.utils.history import History
 import numpy as np
 
-from utils.orient_helpers import OrientUtils
+from utils.orient import OrientUtils
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from loss_funcs import LossFunc

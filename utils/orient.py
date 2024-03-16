@@ -5,8 +5,8 @@ from scipy.spatial.transform import Rotation
 
 class OrientUtils:
 
-    LOWER_BOUND = np.asanyarray([-np.pi, -np.pi / 2, -np.pi])
-    UPPER_BOUND = np.asanyarray([np.pi, np.pi / 2, np.pi])
+    LOWER_BOUND = np.asanyarray([-np.pi, -np.pi, -np.pi], dtype=float)
+    UPPER_BOUND = np.asanyarray([np.pi, np.pi, np.pi], dtype=float)
 
     @staticmethod
     def _uniform_det_axes(num_pts: int) -> np.ndarray:

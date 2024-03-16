@@ -2,7 +2,7 @@ import numpy as np
 from dataclasses import dataclass
 import time
 
-from utils.orient_helpers import OrientUtils
+from utils.orient import OrientUtils
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from tqdm.auto import tqdm

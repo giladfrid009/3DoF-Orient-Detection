@@ -1,7 +1,7 @@
 import numpy as np
 import skimage
 
-class ImageHelpers:
+class ImageUtils:
     """
     Image manipulation functions that work both on batched data and single images.
     Image batch dim is assumed to be [N, W, H, 3]

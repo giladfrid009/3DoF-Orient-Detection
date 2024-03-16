@@ -1,7 +1,7 @@
 import abc
 import numpy as np
 import skimage.metrics as metrics
-from utils.image_helpers import ImageHelpers
+from utils.image import ImageUtils
 import skimage
 from skimage import feature
 from skimage import color
@@ -126,14 +126,14 @@ class IOU(LossFunc):
         self.bg_value = bg_value
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        mask1 = ImageHelpers.calc_mask(image_truth, bg_value=self.bg_value)
-        mask2 = ImageHelpers.calc_mask(image_other, bg_value=self.bg_value)
+        mask1 = ImageUtils.calc_mask(image_truth, bg_value=self.bg_value)
+        mask2 = ImageUtils.calc_mask(image_other, bg_value=self.bg_value)
         iou = np.sum(mask1 & mask2) / np.sum(mask1 | mask2)
         return 1 - iou
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        masks1 = ImageHelpers.calc_mask(batch_truth, bg_value=self.bg_value)
-        masks2 = ImageHelpers.calc_mask(batch_other, bg_value=self.bg_value)
+        masks1 = ImageUtils.calc_mask(batch_truth, bg_value=self.bg_value)
+        masks2 = ImageUtils.calc_mask(batch_other, bg_value=self.bg_value)
         N = batch_truth.shape[0]
         both = np.sum((masks1 & masks2).reshape(N, -1), axis=-1)
         any = np.sum((masks1 | masks2).reshape(N, -1), axis=-1)
@@ -229,8 +229,8 @@ class HausdorffDistance(LossFunc):
         self.method = method.lower()
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        masks1 = ImageHelpers.calc_mask(batch_truth, bg_value=self.bg_value)
-        masks2 = ImageHelpers.calc_mask(batch_other, bg_value=self.bg_value)
+        masks1 = ImageUtils.calc_mask(batch_truth, bg_value=self.bg_value)
+        masks2 = ImageUtils.calc_mask(batch_other, bg_value=self.bg_value)
         losses = []
         for m1, m2 in zip(masks1, masks2):
             score = metrics.hausdorff_distance(m1, m2, method=self.method)
@@ -238,8 +238,8 @@ class HausdorffDistance(LossFunc):
         return losses
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        mask1 = ImageHelpers.calc_mask(image_truth, bg_value=self.bg_value)
-        mask2 = ImageHelpers.calc_mask(image_other, bg_value=self.bg_value)
+        mask1 = ImageUtils.calc_mask(image_truth, bg_value=self.bg_value)
+        mask2 = ImageUtils.calc_mask(image_other, bg_value=self.bg_value)
         return metrics.hausdorff_distance(mask1, mask2, method=self.method)
 
 

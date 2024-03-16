@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Iterator, Iterable
 
-from utils.orient_helpers import OrientUtils
+from utils.orient import OrientUtils
 from manipulated_object import ObjectPosition
 
 

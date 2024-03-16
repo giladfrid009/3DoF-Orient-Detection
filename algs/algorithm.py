@@ -6,7 +6,7 @@ from typing import Callable
 from view_sampler import ViewSampler
 from manipulated_object import ObjectPosition
 from loss_funcs import LossFunc
-from utils.image_helpers import ImageHelpers
+from utils.image import ImageUtils
 
 
 @dataclass
@@ -44,8 +44,8 @@ class Algorithm(ABC):
         )
 
         pad_shape = np.maximum(ref_img.shape, test_img.shape)
-        ref_img = ImageHelpers.pad_to_shape(ref_img, pad_shape)
-        test_img = ImageHelpers.pad_to_shape(test_img, pad_shape)
+        ref_img = ImageUtils.pad_to_shape(ref_img, pad_shape)
+        test_img = ImageUtils.pad_to_shape(test_img, pad_shape)
 
         loss = self.loss_func(ref_img, test_img)
 

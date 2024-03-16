@@ -86,7 +86,7 @@ class SearchPlotter(PlotterBase):
             data["y"],
             data["z"],
             c=data["loss"],
-            cmap="hot",
+            cmap="inferno",
             s=self._point_size,
             alpha=self._alpha,
         )

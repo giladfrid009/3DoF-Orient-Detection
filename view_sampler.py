@@ -1,7 +1,7 @@
 import numpy as np
 from dataclasses import dataclass
 
-from utils.image_helpers import ImageHelpers
+from utils.image import ImageUtils
 from simulator import Simulator
 from manipulated_object import ObjectPosition
 
@@ -63,7 +63,7 @@ class ViewSampler:
         image = self._render_image(depth=False)
 
         if depth:
-            mask = ImageHelpers.calc_mask(image, bg_value=0)
+            mask = ImageUtils.calc_mask(image, bg_value=0)
             image = self._render_image(depth=True)
             image[~mask] = 0
 
@@ -79,8 +79,8 @@ class ViewSampler:
     ) -> tuple[np.ndarray, ObjectPosition]:
 
         image, position = self.get_view(position, depth, allow_simulation=allow_simulation)
-        mask = ImageHelpers.calc_mask(image, bg_value=0)
-        x1, y1, x2, y2 = ImageHelpers.calc_bboxes(mask, margin_factor)
+        mask = ImageUtils.calc_mask(image, bg_value=0)
+        x1, y1, x2, y2 = ImageUtils.calc_bboxes(mask, margin_factor)
         cropped = image[x1:x2, y1:y2, :]
         return cropped, position
 
