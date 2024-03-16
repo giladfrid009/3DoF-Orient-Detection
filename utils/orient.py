@@ -36,11 +36,9 @@ class OrientUtils:
 
     @staticmethod
     def generate_random(num_samples: int, rnd_seed: int = None):
-        n = math.ceil(math.pow(num_samples, 1 / 3))
         rng = np.random.default_rng(rnd_seed)
-        axes = OrientUtils._uniform_rnd_axes(n**2, rng)
-        axes = np.repeat(axes, n, axis=0)
-        rots = rng.uniform(0, 2 * np.pi, size=n**3)
+        axes = OrientUtils._uniform_rnd_axes(num_samples, rng)
+        rots = rng.uniform(0, 2 * np.pi, size=num_samples)
         rot_vec = np.expand_dims(rots, axis=-1) * axes
         orients = Rotation.from_rotvec(rot_vec).as_euler("xyz")
         return orients

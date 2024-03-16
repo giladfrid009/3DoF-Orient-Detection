@@ -13,7 +13,7 @@ from utils.image import ImageUtils
 class SearchConfig:
     time_limit: float = 100
     rnd_seed: int = None
-    silent = False
+    silent: bool = False
 
 
 class Algorithm(ABC):

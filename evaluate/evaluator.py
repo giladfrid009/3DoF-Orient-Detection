@@ -33,7 +33,7 @@ class Evaluator:
         alg_config: SearchConfig,
         eval_positions: Iterable[ObjectPosition],
     ) -> list[float]:
-        print(f"Evaluating Algorithm: {type(alg).__name__}")
+        print(f"Evaluating Algorithm: {alg.get_name()}")
         print(f"Alg Config: {alg_config}")
         print(f"Loss Function: {type(alg.loss_func).__name__}")
 
