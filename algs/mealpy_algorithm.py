@@ -2,12 +2,11 @@ from dataclasses import dataclass
 import mealpy
 from mealpy.utils.agent import Agent
 import numpy as np
+import time
 
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from loss_funcs import LossFunc
-
-from time import perf_counter
 
 
 class MealpyAlgorithm(Algorithm):
@@ -53,7 +52,7 @@ class MealpyAlgorithm(Algorithm):
             name="orient_detection",
         )
 
-        termination = mealpy.Termination(max_time=perf_counter() + alg_config.time_limit)
+        termination = mealpy.Termination(max_time=time.perf_counter() + alg_config.time_limit)
 
         best: Agent = self.optimizer.solve(
             problem=problem,
