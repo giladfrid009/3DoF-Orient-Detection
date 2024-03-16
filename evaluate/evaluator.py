@@ -7,12 +7,16 @@ from view_sampler import ViewSampler
 from evaluate.eval_funcs import EvalFunc
 from manipulated_object import ObjectPosition
 from algs.algorithm import Algorithm, SearchConfig
-
+from exp_logging import Experiment
+from algs.mealpy_algorithm import MealpyAlgorithm
+from pathlib import Path
 
 class Evaluator:
     def __init__(self, world_viewer: ViewSampler, eval_func: EvalFunc) -> None:
         self.world_viewer = world_viewer
         self.eval_func = eval_func
+        self.log_enable = False
+        self.root = None
 
     def evaluate(
         self,
@@ -27,7 +31,7 @@ class Evaluator:
         losses = []
         alg.set_mode(eval=True)
 
-        for position in tqdm(eval_positions, desc=f"Evaluating: "):
+        for iter, position in enumerate(tqdm(eval_positions, desc=f"Evaluating: ")):
 
             ref_img, _ = self.world_viewer.get_view_cropped(
                 position,
@@ -60,6 +64,33 @@ class Evaluator:
             loss = self.eval_func(ref_depth, pred_depth)
             losses.append(loss)
 
+            if self.log_enable:
+                path = self.root + f"/{alg.get_name()}_{iter}.res"
+                self.log_result(path, alg, loss, position, ObjectPosition(pred_orient, position.location))
+
         alg.set_mode(eval=False)
 
         return losses
+
+    def enable_logging(self, root:str, exist_ok:bool=False):
+        self.log_enable = True
+        self.root = root
+        Path(root).mkdir(parents=True, exist_ok=exist_ok)
+    
+    def disable_logging(self):
+        self.log_enable = False
+        self.root = None
+
+    def log_result(self, file_path:str, alg:MealpyAlgorithm, loss:float, ref_pos:ObjectPosition, pred_pos:ObjectPosition):
+        if isinstance(alg, MealpyAlgorithm):
+            exp = Experiment(alg.optimizer, loss, ref_pos, pred_pos)
+            exp.save(file_path)
+
+
+
+
+
+
+
+
+

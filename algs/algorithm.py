@@ -59,3 +59,6 @@ class Algorithm(ABC):
         alg_config: SearchConfig,
     ) -> tuple[tuple[float, float, float], float]:
         pass
+
+    def get_name(self)->str:
+        return type(self).__name__
