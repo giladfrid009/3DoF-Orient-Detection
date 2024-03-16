@@ -61,7 +61,7 @@ class EvalFunc(ABC):
 
 
 class XorDiff(EvalFunc):
-    def __init__(self, obj_depth: float, method: str = "mae"):
+    def __init__(self, obj_depth: float, method: str = "mse"):
         self.obj_depth = obj_depth
         self.method = method.lower()
         assert self.method in ["mae", "mse"]
@@ -104,7 +104,7 @@ class XorDiff(EvalFunc):
 
 
 class NormXorDiff(EvalFunc):
-    def __init__(self, obj_depth: float, method: str = "mae", norm: str = "euclidean"):
+    def __init__(self, obj_depth: float, method: str = "mse", norm: str = "euclidean"):
         self.obj_depth = obj_depth
         self.method = method.lower()
         self.norm = norm.lower()
