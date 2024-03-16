@@ -1,10 +1,20 @@
 from __future__ import annotations
 from typing import Iterator, Iterable
 
+from utils.orient_helpers import OrientUtils
 from manipulated_object import ObjectPosition
 
 
 class EvalDataset:
+    @staticmethod
+    def create_uniform(location: tuple[float, float, float], min_samples: int) -> EvalDataset:
+        orients = OrientUtils.generate_uniform(min_samples)
+        return EvalDataset([ObjectPosition(orient, location) for orient in orients])
+
+    def create_random(location: tuple[float, float, float], min_samples: int, rnd_seed: int = None) -> EvalDataset:
+        orients = OrientUtils.generate_random(min_samples, rnd_seed)
+        return EvalDataset([ObjectPosition(orient, location) for orient in orients])
+
     def __init__(self, items: Iterable[ObjectPosition] = None) -> None:
         self._items = list(items) if items is not None else []
 
