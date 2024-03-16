@@ -18,7 +18,7 @@ class RandomSampling(Algorithm):
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         super().__init__(test_viewer, loss_func)
 
-    def find_orientation(
+    def solve(
         self,
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],

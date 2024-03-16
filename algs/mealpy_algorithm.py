@@ -3,14 +3,41 @@ import mealpy
 from mealpy.utils.agent import Agent
 from mealpy.utils.history import History
 import numpy as np
-import time
 
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from loss_funcs import LossFunc
 
 
-class MealpyAlgorithm(Algorithm):
+class MealTermination(mealpy.Termination):
+    def __init__(self, max_time: float):
+        super().__init__(max_time=max_time)
+
+    def should_terminate(self, current_epoch, current_fe, current_time, current_threshold):
+        # Check maximum number of generations
+        if self.max_epoch is not None and current_epoch >= self.max_epoch:
+            self.message = (
+                "Stopping criterion with maximum number of epochs/generations/iterations (MG) occurred. End program!"
+            )
+            return True
+        # Check maximum number of function evaluations
+        if self.max_fe is not None and current_fe >= self.max_fe:
+            self.message = "Stopping criterion with maximum number of function evaluations (FE) occurred. End program!"
+            return True
+        # Check maximum time
+        if self.max_time is not None and current_time - self.start_time >= self.max_time:
+            self.message = (
+                "Stopping criterion with maximum running time/time bound (TB) (seconds) occurred. End program!"
+            )
+            return True
+        # Check early stopping
+        if self.max_early_stop is not None and current_threshold >= self.max_early_stop:
+            self.message = "Stopping criterion with early stopping (ES) (fitness-based) occurred. End program!"
+            return True
+        return False
+
+
+class MealAlgorithm(Algorithm):
     @dataclass
     class Config(SearchConfig):
         """
@@ -19,7 +46,7 @@ class MealpyAlgorithm(Algorithm):
 
                 * 'process': The parallel mode with multiple cores run the tasks
                 * 'thread': The parallel mode with multiple threads run the tasks
-                * 'swarm': The sequential mode that no effect on updating phase of other agents
+                * 'swarm': The sequential mode that has no effect on updating phase of other agents
                 * 'single': The sequential mode that effect on updating phase of other agents, this is default mode
 
             n_workers: The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
@@ -32,7 +59,6 @@ class MealpyAlgorithm(Algorithm):
         seed: int = None
         run_mode: str = "single"
         n_workers: int = None
-        log_dest: str = "console"
         save_pop: bool = None
 
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc, optimizer: mealpy.Optimizer):
@@ -43,16 +69,13 @@ class MealpyAlgorithm(Algorithm):
     def history(self) -> History:
         return self.optimizer.history
 
-    def _get_logging_params(self, alg_config: Config) -> tuple[str, str]:
-        if alg_config.silent:
-            return None, None
+    def get_name(self) -> str:
+        return self.optimizer.get_name()
 
-        if alg_config.log_dest == "console":
-            return "console", None
+    def get_params(self) -> dict:
+        return self.optimizer.get_parameters()
 
-        return "file", alg_config.log_dest
-
-    def find_orientation(
+    def solve(
         self,
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
@@ -63,19 +86,16 @@ class MealpyAlgorithm(Algorithm):
 
         bounds = mealpy.FloatVar(lb=[0, 0, 0], ub=[2 * np.pi, 2 * np.pi, 2 * np.pi])
 
-        log_to, log_file = self._get_logging_params(alg_config)
-
         problem = mealpy.Problem(
             obj_func=obj_func,
             bounds=bounds,
             minmax="min",
-            log_to=log_to,
-            log_file=log_file,
+            log_to=None if alg_config.silent else "console",
             name="orient_detection",
             save_population=alg_config.save_pop,
         )
 
-        termination = mealpy.Termination(max_time=time.perf_counter() + alg_config.time_limit)
+        termination = MealTermination(alg_config.time_limit)
 
         best: Agent = self.optimizer.solve(
             problem=problem,

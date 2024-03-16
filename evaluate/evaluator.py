@@ -35,7 +35,7 @@ class Evaluator:
                 allow_simulation=False,
             )
 
-            pred_orient, _ = alg.find_orientation(ref_img, position.location, alg_config)
+            pred_orient, _ = alg.solve(ref_img, position.location, alg_config)
 
             ref_depth, _ = self.world_viewer.get_view_cropped(
                 position=position,

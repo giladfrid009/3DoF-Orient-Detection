@@ -37,7 +37,7 @@ class UniformSampling(Algorithm):
         xyz = xyz / np.linalg.norm(xyz, axis=1)[:, np.newaxis]
         return xyz
 
-    def find_orientation(
+    def solve(
         self,
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],

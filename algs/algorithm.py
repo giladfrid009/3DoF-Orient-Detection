@@ -28,6 +28,9 @@ class Algorithm(ABC):
     def set_mode(self, eval: bool):
         self.eval_mode = eval
 
+    def get_name(self) -> str:
+        return type(self).__name__
+
     def calc_loss(
         self,
         ref_location: tuple[float, float, float],
@@ -52,7 +55,7 @@ class Algorithm(ABC):
         return loss
 
     @abstractmethod
-    def find_orientation(
+    def solve(
         self,
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
