@@ -4,6 +4,7 @@ from mealpy.utils.agent import Agent
 from mealpy.utils.history import History
 import numpy as np
 
+from utils.orient_helpers import OrientUtils
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from loss_funcs import LossFunc
@@ -84,7 +85,7 @@ class MealAlgorithm(Algorithm):
 
         obj_func = lambda test_orient: self.calc_loss(ref_location, ref_img, test_orient)
 
-        bounds = mealpy.FloatVar(lb=[0, 0, 0], ub=[2 * np.pi, 2 * np.pi, 2 * np.pi])
+        bounds = mealpy.FloatVar(lb=OrientUtils.LOWER_BOUND, ub=OrientUtils.UPPER_BOUND)
 
         problem = mealpy.Problem(
             obj_func=obj_func,

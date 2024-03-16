@@ -6,7 +6,7 @@ from typing import Callable
 from view_sampler import ViewSampler
 from manipulated_object import ObjectPosition
 from loss_funcs import LossFunc
-from image_helpers import ImageHelpers
+from utils.image_helpers import ImageHelpers
 
 
 @dataclass

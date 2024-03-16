@@ -2,6 +2,7 @@ import numpy as np
 from dataclasses import dataclass
 import time
 
+from utils.orient_helpers import OrientUtils
 from algs.algorithm import Algorithm, SearchConfig
 from view_sampler import ViewSampler
 from tqdm.auto import tqdm
@@ -29,7 +30,10 @@ class RandomSampling(Algorithm):
 
         rng = np.random.default_rng(alg_config.rnd_seed)
 
-        rnd_orients = rng.uniform(low=0, high=2 * np.pi, size=(alg_config.num_samples, 3)).tolist()
+        low = np.expand_dims(OrientUtils.LOWER_BOUND, -1)
+        high = np.expand_dims(OrientUtils.UPPER_BOUND, -1)
+
+        rnd_orients = rng.uniform(low=low, high=high, size=(alg_config.num_samples, 3)).tolist()
 
         tqdm_bar = tqdm(
             iterable=rnd_orients,

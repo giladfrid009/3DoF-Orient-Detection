@@ -1,7 +1,7 @@
 import numpy as np
 from dataclasses import dataclass
 
-from image_helpers import ImageHelpers
+from utils.image_helpers import ImageHelpers
 from simulator import Simulator
 from manipulated_object import ObjectPosition
 

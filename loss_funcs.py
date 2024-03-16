@@ -1,7 +1,7 @@
 import abc
 import numpy as np
 import skimage.metrics as metrics
-from image_helpers import ImageHelpers
+from utils.image_helpers import ImageHelpers
 import skimage
 from skimage import feature
 from skimage import color

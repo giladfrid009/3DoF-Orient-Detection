@@ -2,7 +2,7 @@ from tqdm.auto import tqdm
 from typing import Iterable
 import numpy as np
 
-from image_helpers import ImageHelpers
+from utils.image_helpers import ImageHelpers
 from view_sampler import ViewSampler
 from evaluate.eval_funcs import EvalFunc
 from manipulated_object import ObjectPosition
