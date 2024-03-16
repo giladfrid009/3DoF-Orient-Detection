@@ -40,8 +40,12 @@ class PlotterBase(ABC):
         self._window.update()
 
     def close(self):
-        self._window.quit()
-        self._window.destroy()
+        try:
+            self._window.update()
+            self._window.destroy()
+            self._window.quit()
+        except:
+            pass
 
     def save(self, filename: str):
         self._figure.savefig(filename, bbox_inches="tight")
