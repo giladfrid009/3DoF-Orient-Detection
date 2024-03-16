@@ -29,8 +29,8 @@ class RandomSampling(Algorithm):
 
         rng = np.random.default_rng(alg_config.rnd_seed)
 
-        low = np.expand_dims(OrientUtils.LOWER_BOUND, -1)
-        high = np.expand_dims(OrientUtils.UPPER_BOUND, -1)
+        low = np.expand_dims(OrientUtils.LOWER_BOUND, 0)
+        high = np.expand_dims(OrientUtils.UPPER_BOUND, 0)
 
         rnd_orients = rng.uniform(low=low, high=high, size=(alg_config.num_samples, 3)).tolist()
 
