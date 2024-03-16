@@ -12,8 +12,7 @@ from loss_funcs import LossFunc
 
 class AlgTermination(Termination):
     def __init__(self, max_epoch=None, max_fe=None, max_time=None, max_early_stop=None, **kwargs):
-        self.super().__init__(max_epoch, max_fe, max_time, max_early_stop, kwargs)
-        self.init_time = time.perf_counter()
+        super().__init__(max_epoch, max_fe, max_time, max_early_stop, **kwargs)
 
     def should_terminate(self, current_epoch, current_fe, current_time, current_threshold):
         # Check maximum number of generations
@@ -81,7 +80,7 @@ class MealpyAlgorithm(Algorithm):
             name="orient_detection",
         )
 
-        termination = mealpy.Termination(max_time=alg_config.time_limit)
+        termination = AlgTermination(max_time=alg_config.time_limit)
 
         best: Agent = self.optimizer.solve(
             problem=problem,
