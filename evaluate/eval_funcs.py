@@ -73,31 +73,34 @@ class XorDiff(EvalFunc):
         one_appears = mask_truth ^ mask_other
 
         diffs = np.zeros_like(depth_truth, dtype=np.float64)
-        diffs += self.obj_depth * one_appears
 
         if self.method == "mae":
             diffs += np.abs(both_appear * (depth_truth - depth_other))
+            diffs += self.obj_depth * one_appears
         elif self.method == "mse":
             diffs += (both_appear * (depth_truth - depth_other)) ** 2
+            diffs += (self.obj_depth * one_appears) ** 2
 
-        return np.mean(diffs)
+        loss = np.sum(diffs) / np.sum(mask_truth | mask_other)
+        return loss
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        masks1 = batch_truth > 0
-        masks2 = batch_other > 0
-
-        both_appear = masks1 & masks2
-        one_appears = masks1 ^ masks2
+        masks_truth = batch_truth > 0
+        masks_other = batch_other > 0
+        both_appear = masks_truth & masks_other
+        one_appears = masks_truth ^ masks_other
 
         diffs = np.zeros_like(batch_truth, dtype=np.float64)
-        diffs += self.obj_depth * one_appears
 
         if self.method == "mae":
             diffs += np.abs(both_appear * (batch_truth - batch_other))
+            diffs += self.obj_depth * one_appears
         elif self.method == "mse":
             diffs += (both_appear * (batch_truth - batch_other)) ** 2
+            diffs += (self.obj_depth * one_appears) ** 2
 
-        return np.mean(diffs, axis=(1, 2, 3)).tolist()
+        losses = np.sum(diffs, axis=(1, 2, 3)) / np.sum(masks_truth | masks_other, axis=(1, 2, 3))
+        return losses.tolist()
 
 
 class NormXorDiff(EvalFunc):
@@ -115,12 +118,13 @@ class NormXorDiff(EvalFunc):
         one_appears = mask_truth ^ mask_other
 
         diffs = np.zeros_like(depth_truth, dtype=np.float64)
-        diffs += self.obj_depth * one_appears
 
         if self.method == "mae":
             diffs += np.abs(both_appear * (depth_truth - depth_other))
+            diffs += self.obj_depth * one_appears
         elif self.method == "mse":
             diffs += (both_appear * (depth_truth - depth_other)) ** 2
+            diffs += (self.obj_depth * one_appears) ** 2
 
         if self.norm == "euclidean":
             denom = np.sqrt(np.mean(depth_truth**2, dtype=np.float64))
@@ -129,7 +133,9 @@ class NormXorDiff(EvalFunc):
         elif self.norm == "mean":
             denom = depth_truth.mean()
 
-        return np.sqrt(np.mean(diffs)) / denom
+        loss =  np.sum(diffs) / np.sum(mask_truth | mask_other)
+        normalized = np.sqrt(loss) / denom
+        return normalized
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
         masks_truth = batch_truth > 0
@@ -138,12 +144,13 @@ class NormXorDiff(EvalFunc):
         one_appears = masks_truth ^ masks_other
 
         diffs = np.zeros_like(batch_truth, dtype=np.float64)
-        diffs += self.obj_depth * one_appears
 
         if self.method == "mae":
             diffs += np.abs(both_appear * (batch_truth - batch_other))
+            diffs += self.obj_depth * one_appears
         elif self.method == "mse":
             diffs += (both_appear * (batch_truth - batch_other)) ** 2
+            diffs += (self.obj_depth * one_appears) ** 2
 
         if self.norm == "euclidean":
             denom = np.sqrt(np.mean(batch_truth**2, axis=(1, 2, 3), dtype=np.float64))
@@ -152,5 +159,6 @@ class NormXorDiff(EvalFunc):
         elif self.norm == "mean":
             denom = np.mean(batch_truth, axis=(1, 2, 3))
 
-        normalized = np.sqrt(np.mean(diffs, axis=(1, 2, 3))) / denom
+        losses = np.sum(diffs, axis=(1, 2, 3)) / np.sum(masks_truth | masks_other, axis=(1, 2, 3))
+        normalized = np.sqrt(losses) / denom
         return normalized.tolist()
