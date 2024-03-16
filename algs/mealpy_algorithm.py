@@ -67,7 +67,7 @@ class MealpyAlgorithm(Algorithm):
 
         obj_func = lambda test_orient: self.calc_loss(ref_location, ref_img, test_orient)
 
-        bounds = mealpy.FloatVar(lb=[0, 0, 0], ub=[2 * np.pi, 2 * np.pi, 2 * np.pi])
+        bounds = mealpy.FloatVar(lb=[-np.pi, -np.pi/2, np.pi], ub=[np.pi, np.pi/2, np.pi])
 
         log_to, log_file = self._get_logging_params(alg_config)
 

@@ -17,6 +17,7 @@ class Evaluator:
         self.eval_func = eval_func
         self.log_enable = False
         self.root = None
+        self.logger = None
 
     def evaluate(
         self,
@@ -30,6 +31,9 @@ class Evaluator:
 
         losses = []
         alg.set_mode(eval=True)
+        if self.enable_logging and isinstance(alg, MealpyAlgorithm):
+            self.logger = Experiment(alg.optimizer)
+            self.logger.termination_config = alg_config.time_limit
 
         for iter, position in enumerate(tqdm(eval_positions, desc=f"Evaluating: ")):
 
@@ -65,7 +69,7 @@ class Evaluator:
             losses.append(loss)
 
             if self.log_enable:
-                path = self.root + f"/{alg.get_name()}_{iter}.res"
+                path = self.root + f"/{alg.get_name()}.res"
                 self.log_result(path, alg, loss, position, ObjectPosition(pred_orient, position.location))
 
         alg.set_mode(eval=False)
@@ -83,8 +87,9 @@ class Evaluator:
 
     def log_result(self, file_path:str, alg:MealpyAlgorithm, loss:float, ref_pos:ObjectPosition, pred_pos:ObjectPosition):
         if isinstance(alg, MealpyAlgorithm):
-            exp = Experiment(alg.optimizer, loss, ref_pos, pred_pos)
-            exp.save(file_path)
+            # exp = Experiment(alg.optimizer, loss, ref_pos, pred_pos)
+            self.logger.add_result(loss, ref_pos, pred_pos, alg.optimizer.history)
+            self.logger.save(file_path)
 
 
 

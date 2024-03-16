@@ -12,20 +12,30 @@ from manipulated_object import ObjectPosition
 @dataclass
 class Experiment:
     algorithm:InitVar[mealpy.Optimizer]
-    eval_loss:float
-    obj_position:ObjectPosition
-    pred_position:ObjectPosition
     alg_name:str = field(init=False)
     alg_params:dict = field(init=False)
     # problem:Problem = field(init=False)
-    termination_config:Termination = field(init=False)
-    history:History = field(init=False)
+    # termination_config:Termination = field(init=False)
+    eval_loss_list:list[float] = field(init=False)
+    obj_positions_list:list[ObjectPosition] = field(init=False)
+    pred_position_list:list[ObjectPosition] = field(init=False)
+    history_list:list[History] = field(init=False)
     
     def __post_init__(self, algorithm:mealpy.Optimizer):
         self.alg_name = algorithm.get_name()
         self.alg_params = algorithm.get_parameters()
-        self.termination_config = algorithm.termination.__dict__
-        self.history = algorithm.history
+        # self.termination_config = algorithm.termination.__dict__
+
+        self.eval_loss_list = []
+        self.obj_positions_list = []
+        self.pred_position_list = []
+        self.history_list = []
+
+    def add_result(self, eval_loss:float, obj_position:ObjectPosition, pred_position:ObjectPosition, history:History):
+        self.eval_loss_list.append(eval_loss)
+        self.obj_positions_list.append(obj_position)
+        self.pred_position_list.append(pred_position)
+        self.history_list.append(history)
         
     def save(self, file_path: str):
         """
