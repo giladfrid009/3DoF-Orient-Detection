@@ -12,6 +12,21 @@ from loss_funcs import LossFunc
 class MealpyAlgorithm(Algorithm):
     @dataclass
     class Config(SearchConfig):
+        """
+        Args:
+            run_mode: Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
+
+                * 'process': The parallel mode with multiple cores run the tasks
+                * 'thread': The parallel mode with multiple threads run the tasks
+                * 'swarm': The sequential mode that no effect on updating phase of other agents
+                * 'single': The sequential mode that effect on updating phase of other agents, this is default mode
+
+            n_workers: The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
+            termination: The termination dictionary or an instance of Termination class
+            seed: seed for random number generation needed to be *explicitly* set to int value
+            log_dest: The destination of the logging output, 'console' or explicit file path. If silent is True, this is ignored.
+        """
+
         seed: int = None
         run_mode: str = "single"
         n_workers: int = None
