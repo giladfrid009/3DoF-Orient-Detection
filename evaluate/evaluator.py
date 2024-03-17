@@ -26,13 +26,13 @@ class Evaluator:
 
     def register_callback(self, callback: Callable[[float], None]):
         self._callback_funcs.append(callback)
-    
+
     def evaluate(
         self,
         alg: Algorithm,
         alg_config: SearchConfig,
         eval_positions: Iterable[ObjectPosition],
-    ) -> list[float]:
+    ) -> list[float] | tuple[list[float], MealLog]:
         print(f"Evaluating Algorithm: {alg.get_name()}")
         print(f"Alg Config: {alg_config}")
         print(f"Loss Function: {type(alg.loss_func).__name__}")
@@ -88,6 +88,7 @@ class Evaluator:
 
         if create_log:
             self.save_log(log, alg)
+            return losses, log
 
         return losses
 
