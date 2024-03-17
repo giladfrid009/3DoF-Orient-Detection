@@ -1,6 +1,7 @@
 import numpy as np
 import skimage
 
+
 class ImageUtils:
     """
     Image manipulation functions that work both on batched data and single images.
@@ -9,12 +10,17 @@ class ImageUtils:
     """
 
     @staticmethod
-    def depth2rgb(img: np.ndarray) -> np.ndarray:
+    def depth2rgb(img: np.ndarray, z_far: float = 5.0) -> np.ndarray:
         if img.shape[-1] == 1:
             img = img.reshape(img.shape[0], img.shape[1])
-        img[img < 0] = 0
-        img = 255 * img
-        img = skimage.color.gray2rgb(255 * img)
+        img[(img <= 0) | (img >= z_far)] = np.nan
+        max_depth = np.nanmax(img)
+        min_depth = np.nanmin(img)
+        min_color, max_color = 20, 250
+        img = (img - min_depth) / (max_depth - min_depth)
+        img = (img * (max_color - min_color)) + min_color
+        img[img == np.nan] = 0
+        img = skimage.color.gray2rgb(img)
         return img.astype(np.uint8)
 
     @staticmethod

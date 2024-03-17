@@ -71,10 +71,6 @@ class Evaluator:
             ref_depth = ImageUtils.pad_to_shape(ref_depth, pad_shape)
             pred_depth = ImageUtils.pad_to_shape(pred_depth, pad_shape)
 
-            # TODO: NEED TO ZERO OUT OUTLIER BACKGROUND DEPTHS. Remove hardcoded values.
-            ref_depth[ref_depth > 20] = 0
-            pred_depth[pred_depth > 20] = 0
-
             loss = self.eval_func(ref_depth, pred_depth)
             losses.append(loss)
 

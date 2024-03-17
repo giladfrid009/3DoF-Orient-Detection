@@ -61,11 +61,15 @@ class EvalFunc(ABC):
 
 
 class XorDiff(EvalFunc):
-    def __init__(self, obj_depth: float, p_norm: float = 1.0):
-        self.obj_depth = obj_depth
+    def __init__(self, penalty: float, p_norm: float = 1.0, z_far: float = 5.0):
+        self.obj_depth = penalty
         self.p_norm = p_norm
+        self.z_far = z_far
 
     def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
+        depth_truth = depth_truth * (depth_truth < self.z_far)
+        depth_other = depth_other * (depth_other < self.z_far)
+
         mask_truth = depth_truth > 0
         mask_other = depth_other > 0
         both_appear = mask_truth & mask_other
@@ -81,6 +85,9 @@ class XorDiff(EvalFunc):
         return loss
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
+        batch_truth = batch_truth * (batch_truth < self.z_far)
+        batch_other = batch_other * (batch_other < self.z_far)
+
         masks_truth = batch_truth > 0
         masks_other = batch_other > 0
         both_appear = masks_truth & masks_other
@@ -97,13 +104,17 @@ class XorDiff(EvalFunc):
 
 
 class NormXorDiff(EvalFunc):
-    def __init__(self, obj_depth: float, p_norm: float = 1.0, normalization: str = "euclidean"):
-        self.obj_depth = obj_depth
+    def __init__(self, penalty: float, p_norm: float = 1.0, z_far: float = 5.0, normalization: str = "euclidean"):
+        self.penalty = penalty
         self.p_norm = p_norm
+        self.z_far = z_far
         self.norm = normalization.lower()
         assert self.norm in ["euclidean", "min-max", "mean"]
 
     def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
+        depth_truth = depth_truth * (depth_truth < self.z_far)
+        depth_other = depth_other * (depth_other < self.z_far)
+
         mask_truth = depth_truth > 0
         mask_other = depth_other > 0
         both_appear = mask_truth & mask_other
@@ -111,7 +122,7 @@ class NormXorDiff(EvalFunc):
 
         diffs = np.zeros_like(depth_truth, dtype=np.float64)
         diffs += both_appear * (depth_truth - depth_other)
-        diffs += self.obj_depth * one_appears
+        diffs += self.penalty * one_appears
         diffs = np.abs(diffs)
 
         n = np.sum(mask_truth | mask_other)
@@ -129,6 +140,9 @@ class NormXorDiff(EvalFunc):
         return normalized
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
+        batch_truth = batch_truth * (batch_truth < self.z_far)
+        batch_other = batch_other * (batch_other < self.z_far)
+
         masks_truth = batch_truth > 0
         masks_other = batch_other > 0
         both_appear = masks_truth & masks_other
@@ -136,7 +150,7 @@ class NormXorDiff(EvalFunc):
 
         diffs = np.zeros_like(batch_truth, dtype=np.float64)
         diffs += both_appear * (batch_truth - batch_other)
-        diffs += self.obj_depth * one_appears
+        diffs += self.penalty * one_appears
         diffs = np.abs(diffs)
 
         n = np.sum(batch_truth | batch_other, axis=(1, 2, 3))
