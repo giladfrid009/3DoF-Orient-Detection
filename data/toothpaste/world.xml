@@ -1,0 +1,106 @@
+<mujoco model="obj_sim">
+    <compiler
+        angle="radian"
+        inertiafromgeom="true" />
+    <option
+        timestep="2e-3"
+        iterations="10"
+        tolerance="1e-10"
+        impratio="20">
+        <flag
+            equality="disable"
+            frictionloss="disable"
+            limit="disable"
+            passive="disable"
+            clampctrl="disable"
+            actuation="disable"
+            eulerdamp="disable" />
+    </option>
+    <size
+        njmax="600"
+        nconmax="150"
+        nstack="300000" />
+
+    <visual>
+        <map
+            fogstart="3"
+            fogend="5"
+            znear="0.05" 
+            zfar="20.0" />
+        <quality
+            shadowsize="2048" />
+        <scale
+            framelength="0.1"
+            framewidth="0.005"
+            contactwidth="0.1"
+            contactheight="0.005"
+            forcewidth="0.01"
+        />
+        <global
+            offwidth="1280"
+            offheight="720" />
+    </visual>
+
+    <asset>
+        <texture
+            name="./textures/floor_tex"
+            type="2d"
+            builtin="flat"
+            rgb1="0 0 0"
+            width="100"
+            height="100" />
+        <material
+            name='floor_mat'
+            texture="./textures/floor_tex"
+            shininess="0"
+            specular="0"
+            reflectance="0" />
+        <mesh 
+            name="object" 
+            file="./object.stl"
+            scale="3.50 3.50 3.50" />
+    </asset>
+
+    <worldbody>
+        <body
+            name="manipulated_object"
+            pos="0 1.5 0.3"
+            euler="0 0 0">
+            <joint
+                type="free"
+                name="manipulated_object_dof" />
+            <geom
+                type="mesh"
+                mesh="object" 
+                rgba="0.75 0.75 0.75 1.0"
+                pos="0 0 0"
+                euler="0 0 0"
+                group="1"
+                contype="1"
+                conaffinity="1"/>
+        </body>
+
+        <light
+            name="light1"
+            mode="targetbody"
+            target="manipulated_object"
+            directional="true"
+            pos="0 0 2" />
+
+        <camera
+            name="my_camera"
+            pos="0 0 0.1"
+            xyaxes="1 0 0 0 0 1" />
+
+        <geom
+            name='floor'
+            material="floor_mat"
+            pos='0 0 0'
+            size='2.5 2.5 0.1'
+            type='plane'
+            mass="1000"
+        />
+
+    </worldbody>
+
+</mujoco>

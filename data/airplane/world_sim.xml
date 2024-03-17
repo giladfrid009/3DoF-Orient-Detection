@@ -1,4 +1,4 @@
-<mujoco model="mug_sim">
+<mujoco model="obj_sim">
     <compiler angle="radian" />
     <option
         impratio="0"
@@ -48,19 +48,10 @@
             framewidth="0.005" />
     </visual>
     <asset>
-        <texture
-            type="2d"
-            name="mug"
-            file="./textures/mug.png" />
-        <material
-            name="mug"
-            texture="mug"
-            specular="1"
-            shininess="1" />
-        <mesh
-            name="mug"
-            file="./meshes/mug.obj"
-            scale="0.02 0.02 0.02" />
+        <mesh 
+            name="object" 
+            file="./object.stl"
+            scale="3.50 3.50 3.50" />
     </asset>
     <worldbody>
         <camera
@@ -75,8 +66,8 @@
             <geom
                 type="mesh"
                 group="1"
-                material="mug"
-                mesh="mug" />
+                mesh="object" 
+                rgba="1 1 1 1.0"/>
         </body>
     </worldbody>
 </mujoco>

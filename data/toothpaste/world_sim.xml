@@ -1,0 +1,73 @@
+<mujoco model="obj_sim">
+    <compiler angle="radian" />
+    <option
+        impratio="0"
+        tolerance="1e-10"
+        gravity="0 0 0"
+        magnetic="0 0 0"
+        o_friction="0 0 0 0 0"
+        iterations="10">
+        <flag
+            constraint="enable"
+            equality="disable"
+            frictionloss="disable"
+            limit="disable"
+            contact="enable"
+            passive="disable"
+            gravity="disable"
+            clampctrl="disable"
+            warmstart="disable"
+            filterparent="disable"
+            actuation="disable"
+            refsafe="disable"
+            midphase="disable"
+            eulerdamp="disable" />
+    </option>
+    <size
+        njmax="600"
+        nconmax="150"
+        nstack="300000" />
+    <visual>
+        <global
+            offwidth="1280"
+            offheight="720" />
+        <quality
+            shadowsize="0" />
+        <headlight
+            ambient="0.3 0.3 0.3"
+            specular="0 0 0" />
+        <map
+            fogend="5"
+            znear="0.05" 
+            zfar="20.0" />
+        <scale
+            forcewidth="0.01"
+            contactwidth="0.1"
+            contactheight="0.005"
+            framelength="0.1"
+            framewidth="0.005" />
+    </visual>
+    <asset>
+        <mesh 
+            name="object" 
+            file="./object.stl"
+            scale="3.50 3.50 3.50" />
+    </asset>
+    <worldbody>
+        <camera
+            name="my_camera"
+            pos="0 0 0"
+            xyaxes="1 0 0 0 1 0" />
+        <body
+            name="manipulated_object">
+            <joint
+                name="manipulated_object_dof"
+                type="free" />
+            <geom
+                type="mesh"
+                group="1"
+                mesh="object" 
+                rgba="0.75 0.75 0.75 1.0"/>
+        </body>
+    </worldbody>
+</mujoco>
