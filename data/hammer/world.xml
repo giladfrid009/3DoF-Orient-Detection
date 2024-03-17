@@ -72,7 +72,7 @@
             <geom
                 type="mesh"
                 mesh="object" 
-                rgba="1 1 1 1.0"
+                rgba="0.7 0.75 0.8 1"
                 pos="0 0 0"
                 euler="0 0 0"
                 group="1"

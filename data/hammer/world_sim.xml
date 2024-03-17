@@ -67,7 +67,7 @@
                 type="mesh"
                 group="1"
                 mesh="object" 
-                rgba="1 1 1 1.0"/>
+                rgba="0.7 0.75 0.8 1" />
         </body>
     </worldbody>
 </mujoco>
