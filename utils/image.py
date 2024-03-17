@@ -10,10 +10,10 @@ class ImageUtils:
     """
 
     @staticmethod
-    def depth2rgb(img: np.ndarray, z_far: float = 5.0) -> np.ndarray:
+    def depth2rgb(img: np.ndarray) -> np.ndarray:
         if img.shape[-1] == 1:
             img = img.reshape(img.shape[0], img.shape[1])
-        img[(img <= 0) | (img >= z_far)] = np.nan
+        img[img <= 0] = np.nan
         max_depth = np.nanmax(img)
         min_depth = np.nanmin(img)
         min_color, max_color = 20, 250

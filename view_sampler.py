@@ -12,6 +12,7 @@ class CameraConfig:
     rotation: np.ndarray
     resolution: tuple[int, int] = (300, 300)
     fov: int = 45
+    zfar: float = 5.0
 
 
 class ViewSampler:
@@ -66,6 +67,7 @@ class ViewSampler:
             mask = ImageUtils.calc_mask(image, bg_value=0)
             image = self._render_image(depth=True)
             image[~mask] = 0
+            image[image >= self.camera_config.zfar] = 0
 
         position = self.simulator.get_object_position()
         return image, position

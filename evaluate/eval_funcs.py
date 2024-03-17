@@ -61,15 +61,11 @@ class EvalFunc(ABC):
 
 
 class XorDiff(EvalFunc):
-    def __init__(self, penalty: float, p_norm: float = 1.0, z_far: float = 5.0):
+    def __init__(self, penalty: float, p_norm: float = 1.0):
         self.obj_depth = penalty
         self.p_norm = p_norm
-        self.z_far = z_far
 
     def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
-        depth_truth = depth_truth * (depth_truth < self.z_far)
-        depth_other = depth_other * (depth_other < self.z_far)
-
         mask_truth = depth_truth > 0
         mask_other = depth_other > 0
         both_appear = mask_truth & mask_other
@@ -85,9 +81,6 @@ class XorDiff(EvalFunc):
         return loss
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        batch_truth = batch_truth * (batch_truth < self.z_far)
-        batch_other = batch_other * (batch_other < self.z_far)
-
         masks_truth = batch_truth > 0
         masks_other = batch_other > 0
         both_appear = masks_truth & masks_other
@@ -104,17 +97,13 @@ class XorDiff(EvalFunc):
 
 
 class NormXorDiff(EvalFunc):
-    def __init__(self, penalty: float, p_norm: float = 1.0, z_far: float = 5.0, normalization: str = "euclidean"):
+    def __init__(self, penalty: float, p_norm: float = 1.0, normalization: str = "euclidean"):
         self.penalty = penalty
         self.p_norm = p_norm
-        self.z_far = z_far
         self.norm = normalization.lower()
         assert self.norm in ["euclidean", "min-max", "mean"]
 
     def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
-        depth_truth = depth_truth * (depth_truth < self.z_far)
-        depth_other = depth_other * (depth_other < self.z_far)
-
         mask_truth = depth_truth > 0
         mask_other = depth_other > 0
         both_appear = mask_truth & mask_other
@@ -140,9 +129,6 @@ class NormXorDiff(EvalFunc):
         return normalized
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        batch_truth = batch_truth * (batch_truth < self.z_far)
-        batch_other = batch_other * (batch_other < self.z_far)
-
         masks_truth = batch_truth > 0
         masks_other = batch_other > 0
         both_appear = masks_truth & masks_other
