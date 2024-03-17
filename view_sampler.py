@@ -66,8 +66,7 @@ class ViewSampler:
         if depth:
             mask = ImageUtils.calc_mask(image, bg_value=0)
             image = self._render_image(depth=True)
-            image[~mask] = 0
-            image[image >= self.camera_config.zfar] = 0
+            image[(~mask) | (image >= self.camera_config.zfar)] = 0
 
         position = self.simulator.get_object_position()
         return image, position
