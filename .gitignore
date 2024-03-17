@@ -2,7 +2,6 @@ models
 *.pt
 *.npy
 *.TXT
-*.txt
 *.pickle
 
 # Byte-compiled / optimized / DLL files
