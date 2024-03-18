@@ -128,6 +128,24 @@ class Gaussian(LossFunc):
         return self.inner_loss_func(image_truth, image_other)
 
 
+class WeightedSum(LossFunc):
+    def __init__(self, loss1: LossFunc, loss2: LossFunc, w1: float = 0.5, w2: float = 0.5) -> None:
+        self.loss1 = loss1
+        self.loss2 = loss2
+        self.w1 = w1
+        self.w2 = w2
+
+    def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
+        loss1 = self.loss1._calculate(image_truth, image_other)
+        loss2 = self.loss2._calculate(image_truth, image_other)
+        return self.w1 * loss1 + self.w2 * loss2
+
+    def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
+        losses1 = self.loss1._calculate_batch(batch_truth, batch_other)
+        losses2 = self.loss2._calculate_batch(batch_truth, batch_other)
+        return [self.w1 * l1 + self.w2 * l2 for l1, l2 in zip(losses1, losses2)]
+
+
 class IOU(LossFunc):
     def __init__(self, bg_value: int = 0):
         self.bg_value = bg_value
