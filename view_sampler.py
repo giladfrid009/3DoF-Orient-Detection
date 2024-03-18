@@ -64,9 +64,10 @@ class ViewSampler:
         image = self._render_image(depth=False)
 
         if depth:
-            mask = ImageUtils.calc_mask(image, bg_value=0)
+            segm = ImageUtils.calc_mask(image, bg_value=0, orig_dims=False)
             image = self._render_image(depth=True)
-            image[(~mask) | (image >= self.camera_config.zfar)] = 0
+            zero_mask = np.expand_dims(~segm, axis=-1) | (image >= self.camera_config.zfar)
+            image[zero_mask] = 0
 
         position = self.simulator.get_object_position()
         return image, position

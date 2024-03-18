@@ -199,7 +199,7 @@ class MutualInformation(LossFunc):
         return 2 - nmi
 
 
-class PeakSignalNoiseRation(LossFunc):
+class PeakSignalNoiseRatio(LossFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         psnr = metrics.peak_signal_noise_ratio(image_truth, image_other, data_range=255)
         return -1 * psnr
