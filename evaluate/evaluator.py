@@ -67,10 +67,6 @@ class Evaluator:
                 allow_simulation=False,
             )
 
-            pad_shape = np.maximum(ref_depth.shape, pred_depth.shape)
-            ref_depth = ImageUtils.pad_to_shape(ref_depth, pad_shape)
-            pred_depth = ImageUtils.pad_to_shape(pred_depth, pad_shape)
-
             loss = self.eval_func(ref_depth, pred_depth)
             losses.append(loss)
 

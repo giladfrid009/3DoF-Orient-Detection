@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
+from utils.image import ImageUtils
 
 
 class EvalFunc(ABC):
@@ -15,7 +16,12 @@ class EvalFunc(ABC):
             float | list[float]: The calculated loss value(s).
         """
         assert depth_truth.shape[-1] == 1
-        assert depth_truth.shape == depth_other.shape
+        assert depth_truth.ndim == depth_other.ndim
+
+        if depth_truth.shape != depth_other.shape:
+            pad_shape = np.maximum(depth_truth.shape, depth_other.shape)
+            depth_truth = ImageUtils.pad_to_shape(depth_truth, pad_shape, pad_value=0)
+            depth_other = ImageUtils.pad_to_shape(depth_other, pad_shape, pad_value=0)
 
         depth_truth = depth_truth.astype(np.float64, copy=False)
         depth_other = depth_other.astype(np.float64, copy=False)

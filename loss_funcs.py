@@ -21,8 +21,15 @@ class LossFunc(abc.ABC):
             float | list[float]: The calculated loss value(s).
         """
         assert image_truth.shape[-1] == 3
-        assert image_truth.shape == image_other.shape
-        assert image_truth.dtype == image_truth.dtype == np.uint8
+        assert image_truth.ndim == image_other.ndim
+
+        if image_truth.shape != image_other.shape:
+            pad_shape = np.maximum(image_truth.shape, image_other.shape)
+            image_truth = ImageUtils.pad_to_shape(image_truth, pad_shape, pad_value=0)
+            image_other = ImageUtils.pad_to_shape(image_other, pad_shape, pad_value=0)
+
+        image_truth = image_truth.astype(np.uint8, copy=False)
+        image_other = image_other.astype(np.uint8, copy=False)
 
         if image_truth.ndim == 4:
             return self._calculate_batch(image_truth, image_other)

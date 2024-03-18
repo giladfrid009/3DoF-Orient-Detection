@@ -43,10 +43,6 @@ class Algorithm(ABC):
             allow_simulation=self.eval_mode == False,
         )
 
-        pad_shape = np.maximum(ref_img.shape, test_img.shape)
-        ref_img = ImageUtils.pad_to_shape(ref_img, pad_shape)
-        test_img = ImageUtils.pad_to_shape(test_img, pad_shape)
-
         loss = self.loss_func(ref_img, test_img)
 
         x, y, z = test_orient
