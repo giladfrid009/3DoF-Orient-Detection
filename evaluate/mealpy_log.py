@@ -1,9 +1,9 @@
 import pickle
 from mealpy.utils.history import History
-from pathlib import Path
 
 from manipulated_object import ObjectPosition
 from algs.mealpy_algorithm import MealAlgorithm
+from utils.io import save_pickle, load_pickle
 
 
 class MealLog:
@@ -29,44 +29,8 @@ class MealLog:
         self.history_list.append(meal_history)
 
     def save(self, file_path: str):
-        """
-        Save an object to a pickle file.
-
-        Args:
-            obj: The object to be saved.
-            file_path (str): The path to the pickle file.
-
-        Raises:
-            ValueError: If there is an error saving the object to the pickle file.
-        """
-
-        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
-
-        try:
-            with open(file_path, "wb") as f:
-                pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)
-        except Exception as e:
-            raise ValueError(f"error saving object to pickle file: {e}")
+        save_pickle(file_path, self)
 
     @staticmethod
     def load(file_path: str):
-        """
-        Load an object from a pickle file.
-
-        Args:
-            file_path (str): The path to the pickle file.
-
-        Returns:
-            The loaded object.
-
-        Raises:
-            FileNotFoundError: If the file does not exist.
-            ValueError: If there is an error loading the object from the pickle file.
-        """
-        try:
-            with open(file_path, "rb") as f:
-                return pickle.load(f)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"file does not exist: {file_path}")
-        except Exception as e:
-            raise ValueError(f"error loading object from pickle file: {e}")
+        return load_pickle(file_path)

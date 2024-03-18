@@ -4,8 +4,9 @@ import matplotlib as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from collections import defaultdict
+from collections import defaultdict, deque
 from abc import ABC, abstractmethod
+from scipy.spatial.transform import Rotation
 
 plt.use("TkAgg")
 
@@ -15,13 +16,17 @@ class PlotterBase(ABC):
         self,
         update_freq: int | None = 100,
         fig_size: tuple[int, int] = (10, 10),
+        history: int = None,
         projection: str = None,
     ):
         self._update_freq = update_freq
         self._fig_size = fig_size
         self._call_counter = 0
 
-        self._data = defaultdict(list)
+        if history is not None:
+            self._data = defaultdict(lambda: deque(maxlen=history))
+        else:
+            self._data = defaultdict(list)
 
         self._window = tk.Tk()
         self._figure = Figure(figsize=fig_size, dpi=100)
@@ -35,7 +40,8 @@ class PlotterBase(ABC):
 
     def draw_plot(self):
         self._axis.clear()
-        self._make_plot(self._axis, self._data)
+        if len(self._data) > 0:
+            self._make_plot(self._axis, self._data)
         self._canvas.draw()
         self._window.update()
 
@@ -57,10 +63,10 @@ class PlotterBase(ABC):
         if self._update_freq is None:
             return
 
+        self._call_counter = (self._call_counter + 1) % self._update_freq
+
         if self._call_counter == 0:
             self.draw_plot()
-
-        self._call_counter = (self._call_counter + 1) % self._update_freq
 
     @abstractmethod
     def _make_plot(self, axis: Axes, data: dict[str, list]):
@@ -72,8 +78,48 @@ class SearchPlotter(PlotterBase):
         self,
         update_freq: int = 100,
         fig_size: tuple[int, int] = (10, 10),
-        alpha: float = 0.25,
+        alpha: float = 0.75,
+        alpha_decay: bool = False,
         point_size: float = 40,
+        history: int = None,
+    ):
+        super().__init__(update_freq, fig_size, history, projection="3d")
+
+        self._alpha = alpha
+        self._point_size = point_size
+        self._alpha_decay = alpha_decay
+
+    def _make_plot(self, axis: Axes, data: dict[str, list]):
+        if self._alpha_decay:
+            count = len(data["loss"])
+            exponents = np.flip(np.arange(count))
+            alpha = np.power(self._alpha * np.ones(count), exponents)
+        else:
+            alpha = self._alpha
+
+        axis.scatter(
+            data["x"],
+            data["y"],
+            data["z"],
+            c=data["loss"],
+            cmap="inferno",
+            s=self._point_size,
+            alpha=alpha,
+        )
+
+        axis.set_xlabel("X")
+        axis.set_ylabel("Y")
+        axis.set_zlabel("Z")
+
+
+class SpherePlotter(PlotterBase):
+    def __init__(
+        self,
+        update_freq: int = 100,
+        fig_size: tuple[int, int] = (10, 10),
+        alpha: float = 0.75,
+        point_size: float = 40,
+        history: int = None,
     ):
         super().__init__(update_freq, fig_size, projection="3d")
 
@@ -81,10 +127,15 @@ class SearchPlotter(PlotterBase):
         self._point_size = point_size
 
     def _make_plot(self, axis: Axes, data: dict[str, list]):
+
+        rots = np.stack((data["x"], data["y"], data["z"]), axis=-1)
+        rots = Rotation.from_euler("zyx", rots, degrees=False).as_rotvec(degrees=False)
+        rots = rots / np.linalg.norm(rots, axis=1)[:, np.newaxis]
+
         axis.scatter(
-            data["x"],
-            data["y"],
-            data["z"],
+            rots[:, 0],
+            rots[:, 1],
+            rots[:, 2],
             c=data["loss"],
             cmap="inferno",
             s=self._point_size,

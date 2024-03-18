@@ -15,8 +15,9 @@ from evaluate.mealpy_log import MealLog
 
 
 class Evaluator:
-    def __init__(self, world_viewer: ViewSampler, eval_func: EvalFunc) -> None:
-        self.world_viewer = world_viewer
+    def __init__(self, rgb_viewer: ViewSampler, depth_viewer: ViewSampler, eval_func: EvalFunc) -> None:
+        self.world_viewer = rgb_viewer
+        self.depth_viewer = depth_viewer
         self.eval_func = eval_func
 
         self.log_enable = False
@@ -55,13 +56,13 @@ class Evaluator:
 
             pred_orient, _ = alg.solve(ref_img, position.location, alg_config)
 
-            ref_depth, _ = self.world_viewer.get_view_cropped(
+            ref_depth, _ = self.depth_viewer.get_view_cropped(
                 position=position,
                 depth=True,
                 allow_simulation=False,
             )
 
-            pred_depth, _ = self.world_viewer.get_view_cropped(
+            pred_depth, _ = self.depth_viewer.get_view_cropped(
                 position=ObjectPosition(pred_orient, position.location),
                 depth=True,
                 allow_simulation=False,
