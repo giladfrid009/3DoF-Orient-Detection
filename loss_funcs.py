@@ -216,7 +216,7 @@ class NormMSE(LossFunc):
 
 
 class MutualInformation(LossFunc):
-    def __init__(self, bins: int = 100):
+    def __init__(self, bins: int = 50):
         self.bins = bins
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:

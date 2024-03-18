@@ -28,7 +28,7 @@ class OrientUtils:
         n = math.ceil(math.pow(min_samples, 1 / 3))
         axes = OrientUtils._uniform_det_axes(n**2)
         axes = np.repeat(axes, n, axis=0)
-        rots = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
+        rots = np.linspace(0, 2 * np.pi, num=(n + 1), endpoint=False)[1:]
         rots = np.tile(rots, n**2)
         rot_vec = np.expand_dims(rots, axis=-1) * axes
         orients = Rotation.from_rotvec(rot_vec).as_euler("xyz")
