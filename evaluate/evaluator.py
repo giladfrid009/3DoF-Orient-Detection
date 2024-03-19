@@ -34,9 +34,8 @@ class Evaluator:
         alg_config: SearchConfig,
         eval_positions: Iterable[ObjectPosition],
     ) -> list[float] | tuple[list[float], MealLog]:
-        print(f"Evaluating Algorithm: {alg.get_name()}")
-        print(f"Alg Config: {alg_config}")
-        print(f"Loss Function: {type(alg.loss_func).__name__}")
+        print(f"Algorithm: {alg.get_name()} | Objective Func: {alg.loss_func.get_name()}")
+        print(f"Config: {alg_config}")
 
         losses = []
         alg.set_mode(eval=True)

@@ -16,6 +16,7 @@ dependencies:
   - opencv
   - scikit-image
   - glfw
+  - dill
   - ipykernel
   - ipywidgets
   - pip:

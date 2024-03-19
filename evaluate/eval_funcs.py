@@ -65,6 +65,9 @@ class EvalFunc(ABC):
             losses.append(loss)
         return losses
 
+    def get_name(self) -> str:
+        return type(self).__name__
+
 
 class XorDiff(EvalFunc):
     def __init__(self, penalty: float, p_norm: float = 1.0):

@@ -70,6 +70,9 @@ class LossFunc(abc.ABC):
             losses.append(loss)
         return losses
 
+    def get_name(self) -> str:
+        return type(self).__name__
+
 
 class CannyEdges(LossFunc):
     def __init__(self, inner_loss_func: LossFunc, sigma: float = 1.75):
@@ -115,6 +118,9 @@ class CannyEdges(LossFunc):
 
         return self.inner_loss_func(batch_truth, batch_other)
 
+    def get_name(self) -> str:
+        return f"{self.inner_loss_func.get_name()}({type(self).__name__})"
+
 
 class Gaussian(LossFunc):
     def __init__(self, inner_loss_func: LossFunc, sigma: int = 1):
@@ -126,6 +132,9 @@ class Gaussian(LossFunc):
         image_other = skimage.util.img_as_ubyte(image_other)
 
         return self.inner_loss_func(image_truth, image_other)
+
+    def get_name(self) -> str:
+        return f"{self.inner_loss_func.get_name()}({type(self).__name__})"
 
 
 class WeightedSum(LossFunc):
@@ -144,6 +153,9 @@ class WeightedSum(LossFunc):
         losses1 = self.loss1._calculate_batch(batch_truth, batch_other)
         losses2 = self.loss2._calculate_batch(batch_truth, batch_other)
         return [self.w1 * l1 + self.w2 * l2 for l1, l2 in zip(losses1, losses2)]
+
+    def get_name(self) -> str:
+        return f" {type(self).__name__}({self.loss1.get_name()},{self.loss2.get_name()})"
 
 
 class IOU(LossFunc):
@@ -180,7 +192,7 @@ class MSE(LossFunc):
         return mses.tolist()
 
 
-class NormMSE(LossFunc):
+class RMSE(LossFunc):
     def __init__(self, norm: str = "euclidean"):
         self.norm = norm.lower()
         assert self.norm in ["euclidean", "min-max", "mean"]
@@ -215,7 +227,7 @@ class NormMSE(LossFunc):
         return normalized.tolist()
 
 
-class MutualInformation(LossFunc):
+class NMI(LossFunc):
     def __init__(self, bins: int = 50):
         self.bins = bins
 
@@ -224,13 +236,13 @@ class MutualInformation(LossFunc):
         return 2 - nmi
 
 
-class PeakSignalNoiseRatio(LossFunc):
+class PSNR(LossFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         psnr = metrics.peak_signal_noise_ratio(image_truth, image_other, data_range=255)
         return -1 * psnr
 
 
-class StructuralSimilarity(LossFunc):
+class SSIM(LossFunc):
     def __init__(self, win_size: int = None):
         self.win_size = win_size
 
@@ -248,7 +260,7 @@ class StructuralSimilarity(LossFunc):
         return 1 - similarity
 
 
-class HausdorffDistance(LossFunc):
+class Hausdorff(LossFunc):
     def __init__(self, bg_value: int = 0, method: str = "modified"):
         self.bg_value = bg_value
         self.method = method.lower()
@@ -268,13 +280,13 @@ class HausdorffDistance(LossFunc):
         return metrics.hausdorff_distance(mask1, mask2, method=self.method)
 
 
-class AdaptedRandError(LossFunc):
+class ARE(LossFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         error, _, _ = metrics.adapted_rand_error(image_truth, image_other)
         return error
 
 
-class VariationOfInformation(LossFunc):
+class VI(LossFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         h1, h2 = metrics.variation_of_information(image_truth, image_other)
         return h2

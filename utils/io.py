@@ -1,3 +1,4 @@
+import dill
 import pickle
 from pathlib import Path
 
