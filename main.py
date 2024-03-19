@@ -19,25 +19,42 @@ from utils.concurrent import TqdmPool, silence_output
 import mealpy
 
 
-OBJECT_NAMES = ["airplane", "hammer", "hand", "headphones", "mouse", "mug", "stapler", "toothpaste"]
+OBJECT_NAMES = ["airplane", "hammer", "hand", "mug", "stapler"]
 
 PARAMS: dict[str, dict[str, list]] = {
-    mealpy.swarm_based.PSO.OriginalPSO.__name__: {},
+    mealpy.swarm_based.PSO.OriginalPSO.__name__: {
+        "c1": np.linspace(1, 3, 3),
+        "c2": np.linspace(1, 3, 3),
+        "w": np.linspace(0.2, 0.8, 3),
+    },
     mealpy.swarm_based.MSA.OriginalMSA.__name__: {},
     mealpy.swarm_based.SCSO.OriginalSCSO.__name__: {},
     mealpy.physics_based.SA.OriginalSA.__name__: {},
     mealpy.physics_based.EVO.OriginalEVO.__name__: {},
     mealpy.physics_based.EFO.DevEFO.__name__: {},
     mealpy.physics_based.EO.ModifiedEO.__name__: {},
-    mealpy.human_based.ICA.OriginalICA.__name__: {"revolution_prob": [0.4, 0.5, 0.6], "empire_count": [7, 6, 5]},
+    mealpy.human_based.ICA.OriginalICA.__name__: {
+        "empire_count": [4, 7, 10],
+        "assimilation_coeff": [1, 2, 3],
+        "revolution_prob": np.linspace(0.02, 0.4, 4),
+        "revolution_rate": np.linspace(0.05, 0.4, 3),
+        "revolution_step_size": np.linspace(0.05, 0.3, 3),
+        "zeta": np.linspace(0.05, 0.2, 3),
+    },
     mealpy.human_based.FBIO.DevFBIO.__name__: {},
-    mealpy.human_based.SARO.OriginalSARO.__name__: {},
+    mealpy.human_based.SARO.OriginalSARO.__name__: {
+        "se": np.linspace(0.4, 0.7, 3),
+        "mu": [5, 10, 15, 20],
+    },
     mealpy.evolutionary_based.GA.BaseGA.__name__: {},
     mealpy.evolutionary_based.CRO.OCRO.__name__: {},
-    mealpy.evolutionary_based.DE.OriginalDE.__name__: {},
-    mealpy.math_based.PSS.OriginalPSS.__name__: {},
+    mealpy.evolutionary_based.DE.OriginalDE.__name__: {"strategy": range(6)},
+    mealpy.math_based.PSS.OriginalPSS.__name__: {
+        "acceptance_rate": np.linspace(0.7, 0.96, 3),
+        "sampling_method": ["LHS", "MC"],
+    },
     mealpy.math_based.SCA.DevSCA.__name__: {},
-    mealpy.math_based.HC.OriginalHC.__name__: {},
+    mealpy.math_based.HC.OriginalHC.__name__: {"neighbour_size": [75, 200, 700, 950]},
 }
 
 
@@ -98,7 +115,7 @@ if __name__ == "__main__":
 
     run_config = MealRunConfig(time_limit=15, silent=True, seed=0)
 
-    dataset = Dataset.create_random(location=OBJ_LOCATION, num_samples=1, seed=1)
+    dataset = Dataset.create_random(location=OBJ_LOCATION, num_samples=20, seed=1)
 
     results = []
 
