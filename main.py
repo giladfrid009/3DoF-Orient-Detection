@@ -14,7 +14,7 @@ from evaluate.eval_log import MealLog
 from evaluate.evaluator import Evaluator
 from evaluate.dataset import Dataset
 from utils.visualize import *
-from utils.multiprocessing import TqdmPool, silence_output
+from utils.concurrent import TqdmPool, silence_output
 
 import mealpy
 
