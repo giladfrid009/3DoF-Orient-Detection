@@ -17,8 +17,10 @@ dependencies:
   - scikit-image
   - glfw
   - dill
+  - pandas
   - ipykernel
   - ipywidgets
+  - seaborn
   - pip:
       - mujoco
       - mealpy

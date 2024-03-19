@@ -27,10 +27,10 @@ class UniformSampling(Algorithm):
         best_orient = None
 
         if self.randomized:
-            orients = OrientUtils.generate_random(self.num_samples, run_config.rnd_seed)
+            orients = OrientUtils.generate_random(self.num_samples, run_config.seed)
         else:
             orients = OrientUtils.generate_uniform(self.num_samples)
-            np.random.default_rng(run_config.rnd_seed).shuffle(orients, axis=0)
+            np.random.default_rng(run_config.seed).shuffle(orients, axis=0)
 
         tqdm_bar = tqdm(
             iterable=orients,

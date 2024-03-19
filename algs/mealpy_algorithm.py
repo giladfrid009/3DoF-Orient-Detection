@@ -103,7 +103,7 @@ class MealAlgorithm(Algorithm):
             n_workers=run_config.n_workers,
             termination=termination,
             starting_solutions=None,
-            seed=run_config.rnd_seed,
+            seed=run_config.seed,
         )
 
         return best.solution, best.target.fitness

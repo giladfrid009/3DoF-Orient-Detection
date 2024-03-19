@@ -22,7 +22,7 @@ class RandomSampling(Algorithm):
         lowest_loss = np.inf
         best_orient = None
 
-        rng = np.random.default_rng(run_config.rnd_seed)
+        rng = np.random.default_rng(run_config.seed)
 
         low = np.expand_dims(OrientUtils.LOWER_BOUND, 0)
         high = np.expand_dims(OrientUtils.UPPER_BOUND, 0)

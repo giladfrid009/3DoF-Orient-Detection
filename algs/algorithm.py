@@ -12,7 +12,7 @@ from utils.image import ImageUtils
 @dataclass
 class RunConfig:
     time_limit: float = 100
-    rnd_seed: int = None
+    seed: int = None
     silent: bool = False
 
 
