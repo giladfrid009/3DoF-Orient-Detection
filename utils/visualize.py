@@ -79,8 +79,17 @@ class SearchPlotter(PlotterBase):
 
         self._alpha = alpha
         self._point_size = point_size
+        self.alphas = [1]
 
     def _make_plot(self, axis: Axes, data: dict[str, list]):
+        count = len(data["loss"])
+        alphas = self._alpha
+        if count > self._update_freq:
+            exponents = np.flip(np.arange(self._update_freq))
+            alphas1 = np.power(self._alpha*np.ones(self._update_freq), exponents)
+            alphas = np.ones(count)*alphas1[0]
+            alphas[-self._update_freq:] = alphas1
+        
         axis.scatter(
             data["x"],
             data["y"],
@@ -88,7 +97,7 @@ class SearchPlotter(PlotterBase):
             c=data["loss"],
             cmap="inferno",
             s=self._point_size,
-            alpha=self._alpha,
+            alpha=alphas,
         )
 
         axis.set_xlabel("X")

@@ -44,15 +44,17 @@ class Evaluator:
 
         if create_log:
             log = MealLog(alg)
-
-        for position in tqdm(eval_positions, desc=f"Evaluating: "):
-
+        
+        for idx, position in enumerate(eval_positions):
+            print(f"Evaluating position {idx}")
+            
             ref_img, _ = self.world_viewer.get_view_cropped(
                 position,
                 depth=False,
                 allow_simulation=False,
             )
-
+            for a in range(100):
+                alg.calc_loss(position.location, ref_img, position.orientation)
             pred_orient, _ = alg.solve(ref_img, position.location, alg_config)
 
             ref_depth, _ = self.world_viewer.get_view_cropped(
