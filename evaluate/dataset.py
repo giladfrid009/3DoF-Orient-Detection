@@ -18,8 +18,8 @@ class Dataset:
         return Dataset([ObjectPosition(orient, location) for orient in orients])
 
     @staticmethod
-    def create_random(location: tuple[float, float, float], num_samples: int, rnd_seed: int = None) -> Dataset:
-        orients = OrientUtils.generate_random(num_samples, rnd_seed)
+    def create_random(location: tuple[float, float, float], num_samples: int, seed: int = None) -> Dataset:
+        orients = OrientUtils.generate_random(num_samples, seed)
         return Dataset([ObjectPosition(orient, location) for orient in orients])
 
     @staticmethod

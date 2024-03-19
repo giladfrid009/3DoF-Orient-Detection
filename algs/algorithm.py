@@ -10,7 +10,7 @@ from utils.image import ImageUtils
 
 
 @dataclass
-class SearchConfig:
+class RunConfig:
     time_limit: float = 100
     rnd_seed: int = None
     silent: bool = False
@@ -26,11 +26,24 @@ class Algorithm(ABC):
     def register_callback(self, callback: Callable[[dict[str, float]], None]):
         self._callback_funcs.append(callback)
 
+    def remove_callback(self, callback: Callable[[dict[str, float]], None]):
+        self._callback_funcs.remove(callback)
+
+    def clear_callbacks(self):
+        self._callback_funcs.clear()
+
     def set_mode(self, eval: bool):
         self.eval_mode = eval
 
     def get_name(self) -> str:
         return type(self).__name__
+
+    def get_params(self) -> dict[str, object]:
+        params = dict()
+        for name, value in self.__dict__.items():
+            if not name.startswith("_") and isinstance(value, (int, float, str, bool)):
+                params[name] = value
+        return params
 
     def calc_loss(
         self,
@@ -56,6 +69,6 @@ class Algorithm(ABC):
         self,
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
-        alg_config: SearchConfig,
+        alg_config: RunConfig,
     ) -> tuple[tuple[float, float, float], float]:
         pass

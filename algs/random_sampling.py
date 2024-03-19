@@ -1,42 +1,37 @@
 import numpy as np
-from dataclasses import dataclass
 import time
 
 from utils.orient import OrientUtils
-from algs.algorithm import Algorithm, SearchConfig
+from algs.algorithm import Algorithm, RunConfig
 from view_sampler import ViewSampler
 from tqdm.auto import tqdm
 from loss_funcs import *
 
 
 class RandomSampling(Algorithm):
-
-    @dataclass
-    class Config(SearchConfig):
-        num_samples: int = 1000
-
-    def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
+    def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc, num_samples: int = 1000):
         super().__init__(test_viewer, loss_func)
+        self.num_samples = num_samples
 
     def solve(
         self,
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
-        alg_config: Config,
+        run_config: RunConfig,
     ) -> tuple[tuple[float, float, float], float]:
         lowest_loss = np.inf
         best_orient = None
 
-        rng = np.random.default_rng(alg_config.rnd_seed)
+        rng = np.random.default_rng(run_config.rnd_seed)
 
         low = np.expand_dims(OrientUtils.LOWER_BOUND, 0)
         high = np.expand_dims(OrientUtils.UPPER_BOUND, 0)
 
-        rnd_orients = rng.uniform(low=low, high=high, size=(alg_config.num_samples, 3)).tolist()
+        rnd_orients = rng.uniform(low=low, high=high, size=(self.num_samples, 3)).tolist()
 
         tqdm_bar = tqdm(
             iterable=rnd_orients,
-            disable=alg_config.silent,
+            disable=run_config.silent,
             leave=False,
         )
 
@@ -51,7 +46,7 @@ class RandomSampling(Algorithm):
 
             tqdm_bar.set_postfix_str(f"Loss: {lowest_loss:.5f}")
 
-            if time.time() - start_time > alg_config.time_limit:
+            if time.time() - start_time > run_config.time_limit:
                 break
 
         tqdm_bar.close()
