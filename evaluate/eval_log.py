@@ -69,10 +69,11 @@ class EvalLog:
 
         return pd.DataFrame(data)
 
-    def save(self, folder_path: str):
+    def save(self, folder_path: str) -> str:
         time_str = time.strftime("%Y%m%d-%H%M%S")
         save_path = Path(folder_path) / f"{self.alg_name}_{time_str}.pickle"
         save_pickle(save_path, self)
+        return save_path.as_posix()
 
     @staticmethod
     def load(file_path: str) -> EvalLog:

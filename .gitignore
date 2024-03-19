@@ -4,6 +4,7 @@ models
 *.TXT
 *.pickle
 plots
+grid_search
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
