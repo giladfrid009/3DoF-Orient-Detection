@@ -30,7 +30,7 @@ class MealLog:
         self.history_list.append(meal_history)
 
     # hook for optimizer callback
-    def add_tajectory(self, x:float, y:float, z:float, loss:float):
+    def add_trajectory(self, x:float, y:float, z:float, loss:float):
         sample = len(self.eval_loss_list)
         self.trajectory[sample].append({"pred_orientation":[x,y,z], "loss":loss})
     

@@ -1,17 +1,7 @@
-import numpy as np
-from view_sampler import ViewSampler, CameraConfig
+from algs import *
 from manipulated_object import ObjectPosition
 import loss_funcs
-from evaluate import eval_funcs
-from algs import *
-
-from utils.orient import OrientUtils
-from evaluate.evaluator import Evaluator
-# from utils.visualize import SearchPlotter
-from utils.image import ImageUtils
-
-import mealpy
-import cv2 as cv
+# import mealpy
 
 uni_orients = [[ 0.06391369,  0.12604662,  0.62187402],
        [ 0.4151444 , -1.04497172, -0.87917655],
@@ -34,10 +24,24 @@ uni_orients = [[ 0.06391369,  0.12604662,  0.62187402],
        [ 0.94947097,  0.54207453,  0.4006913 ],
        [ 1.18953515,  0.13478557, -1.54422532]]
 
-uni_positions = [ObjectPosition(orient, (0, 1, 0.3)) for orient in uni_orients]
+uni_positions = [ObjectPosition(orient, (0, 1.3, 0.3)) for orient in uni_orients]
 
 
 def evaluate(alg:MealAlgorithm, alg_config:MealAlgorithm.Config, loss_func:loss_funcs.LossFunc, path:str):
+    import numpy as np
+    from view_sampler import ViewSampler, CameraConfig
+    
+    
+    from evaluate import eval_funcs
+    
+
+#     from utils.orient import OrientUtils
+    from evaluate.evaluator import Evaluator
+    # from utils.visualize import SearchPlotter
+#     from utils.image import ImageUtils
+#     import cv2 as cv
+    
+
     # Create a camera configuration
     cam_config = CameraConfig(location=(0, 0, 0.3), rotation=(np.pi / 2, 0, 0), fov=60)
     world_viewer = ViewSampler("data/hammer/world.xml", cam_config, simulation_time=0)
