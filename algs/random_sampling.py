@@ -36,9 +36,7 @@ class RandomSampling(Algorithm):
             epoch_end_time = time.time()
             epoch_time = epoch_end_time - epoch_start_time
             epoch_start_time = epoch_end_time
-
             run_hist.add_epoch(epoch_time, lowest_loss)
-
             if epoch_end_time - start_time > run_config.max_time:
                 break
 
