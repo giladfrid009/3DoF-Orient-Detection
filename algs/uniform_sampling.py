@@ -64,6 +64,8 @@ class IDUniformSampling(Algorithm):
         best_orient = None
 
         start_time = time.time()
+        run_hist = RunHistory()
+        epoch_start_time = start_time
 
         for epoch in range(run_config.max_epoch):
             orients = OrientUtils.generate_uniform((2 + epoch) ** 3)
@@ -73,7 +75,13 @@ class IDUniformSampling(Algorithm):
                     lowest_loss = loss
                     best_orient = test_orient
 
-            if time.time() - start_time > run_config.max_time:
+            epoch_end_time = time.time()
+            epoch_time = epoch_end_time - epoch_start_time
+            epoch_start_time = epoch_end_time
+
+            run_hist.add_epoch(epoch_time, lowest_loss)
+
+            if epoch_end_time - start_time > run_config.max_time:
                 break
 
             return best_orient, lowest_loss
