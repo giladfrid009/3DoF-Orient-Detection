@@ -71,7 +71,7 @@ class EvalFunc(ABC):
 
 class XorDiff(EvalFunc):
     def __init__(self, penalty: float, p_norm: float = 1.0):
-        self.obj_depth = penalty
+        self.penalty = penalty
         self.p_norm = p_norm
 
     def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
@@ -82,11 +82,12 @@ class XorDiff(EvalFunc):
 
         diffs = np.zeros_like(depth_truth, dtype=np.float64)
         diffs += both_appear * (depth_truth - depth_other)
-        diffs += self.obj_depth * one_appears
+        diffs += self.penalty * one_appears
         diffs = np.abs(diffs)
 
-        n = np.sum(mask_truth | mask_other)
-        loss = np.power(np.sum(np.power(diffs, self.p_norm)) / n, 1 / self.p_norm)
+        union_area = np.sum(mask_truth | mask_other)
+        norm = np.sum(np.power(diffs, self.p_norm)) / union_area
+        loss = np.power(norm, 1 / self.p_norm) / self.penalty
         return loss
 
     def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
@@ -97,67 +98,10 @@ class XorDiff(EvalFunc):
 
         diffs = np.zeros_like(batch_truth, dtype=np.float64)
         diffs += both_appear * (batch_truth - batch_other)
-        diffs += self.obj_depth * one_appears
+        diffs += self.penalty * one_appears
         diffs = np.abs(diffs)
 
-        n = np.sum(batch_truth | batch_other, axis=(1, 2, 3))
-        losses = np.power(np.sum(np.power(diffs, self.p_norm), axis=(1, 2, 3)) / n, 1 / self.p_norm)
+        union_area = np.sum(batch_truth | batch_other, axis=(1, 2, 3))
+        norm = np.sum(np.power(diffs, self.p_norm), axis=(1, 2, 3)) / union_area
+        losses = np.power(norm, 1 / self.p_norm / self.penalty)
         return losses.tolist()
-
-
-class NormXorDiff(EvalFunc):
-    def __init__(self, penalty: float, p_norm: float = 1.0, normalization: str = "euclidean"):
-        self.penalty = penalty
-        self.p_norm = p_norm
-        self.norm = normalization.lower()
-        assert self.norm in ["euclidean", "min-max", "mean"]
-
-    def _calculate(self, depth_truth: np.ndarray, depth_other: np.ndarray) -> float:
-        mask_truth = depth_truth > 0
-        mask_other = depth_other > 0
-        both_appear = mask_truth & mask_other
-        one_appears = mask_truth ^ mask_other
-
-        diffs = np.zeros_like(depth_truth, dtype=np.float64)
-        diffs += both_appear * (depth_truth - depth_other)
-        diffs += self.penalty * one_appears
-        diffs = np.abs(diffs)
-
-        n = np.sum(mask_truth | mask_other)
-        loss = np.sum(np.power(diffs, self.p_norm)) / n
-        loss = np.power(loss, 1 / self.p_norm)
-
-        if self.norm == "euclidean":
-            denom = np.sqrt(np.mean(depth_truth**2, dtype=np.float64))
-        elif self.norm == "min-max":
-            denom = depth_truth.max() - depth_truth.min()
-        elif self.norm == "mean":
-            denom = depth_truth.mean()
-
-        normalized = loss / denom
-        return normalized
-
-    def _calculate_batch(self, batch_truth: np.ndarray, batch_other: np.ndarray) -> list[float]:
-        masks_truth = batch_truth > 0
-        masks_other = batch_other > 0
-        both_appear = masks_truth & masks_other
-        one_appears = masks_truth ^ masks_other
-
-        diffs = np.zeros_like(batch_truth, dtype=np.float64)
-        diffs += both_appear * (batch_truth - batch_other)
-        diffs += self.penalty * one_appears
-        diffs = np.abs(diffs)
-
-        n = np.sum(batch_truth | batch_other, axis=(1, 2, 3))
-        losses = np.sum(np.power(diffs, self.p_norm), axis=(1, 2, 3)) / n
-        losses = np.power(losses, 1 / self.p_norm)
-
-        if self.norm == "euclidean":
-            denom = np.sqrt(np.mean(batch_truth**2, axis=(1, 2, 3), dtype=np.float64))
-        elif self.norm == "min-max":
-            denom = np.max(batch_truth, axis=(1, 2, 3)) - np.min(batch_truth, axis=(1, 2, 3))
-        elif self.norm == "mean":
-            denom = np.mean(batch_truth, axis=(1, 2, 3))
-
-        normalized = losses / denom
-        return normalized.tolist()

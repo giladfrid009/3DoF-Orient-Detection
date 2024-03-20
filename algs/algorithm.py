@@ -6,12 +6,12 @@ from typing import Callable
 from view_sampler import ViewSampler
 from manipulated_object import ObjectPosition
 from loss_funcs import LossFunc
-from utils.image import ImageUtils
 
 
 @dataclass
 class RunConfig:
-    time_limit: float = 100
+    max_time: float = 100
+    max_epoch: int = 100000
     seed: int = None
     silent: bool = False
 

@@ -11,8 +11,8 @@ from loss_funcs import LossFunc
 
 
 class MealTermination(mealpy.Termination):
-    def __init__(self, max_time: float):
-        super().__init__(max_time=max_time)
+    def __init__(self, max_epoch: int, max_time: float):
+        super().__init__(max_epoch=max_epoch, max_time=max_time)
 
     def should_terminate(self, current_epoch, current_fe, current_time, current_threshold):
         # Check maximum number of generations
@@ -95,7 +95,7 @@ class MealAlgorithm(Algorithm):
             save_population=run_config.save_pop,
         )
 
-        termination = MealTermination(run_config.time_limit)
+        termination = MealTermination(run_config.max_epoch, run_config.max_time)
 
         best: Agent = self.optimizer.solve(
             problem=problem,

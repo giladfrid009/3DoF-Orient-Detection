@@ -19,62 +19,39 @@ from utils.concurrent import TqdmPool, silence_output
 import mealpy
 
 
-OBJECT_NAMES = ["airplane", "hammer", "hand", "mug", "stapler"]
+OBJECT_NAMES = ["airplane", "hammer", "mug"]
 
 PARAMS: dict[str, dict[str, list]] = {
-    mealpy.swarm_based.PSO.OriginalPSO.__name__: {
-        "c1": np.linspace(1, 3, 3),
-        "c2": np.linspace(1, 3, 3),
-        "w": np.linspace(0.2, 0.8, 3),
-    },
-    mealpy.swarm_based.MSA.OriginalMSA.__name__: {},
-    mealpy.swarm_based.SCSO.OriginalSCSO.__name__: {},
-    mealpy.physics_based.SA.OriginalSA.__name__: {},
-    mealpy.physics_based.EVO.OriginalEVO.__name__: {},
-    mealpy.physics_based.EFO.DevEFO.__name__: {},
-    mealpy.physics_based.EO.ModifiedEO.__name__: {},
     mealpy.human_based.ICA.OriginalICA.__name__: {
-        "empire_count": [4, 7, 10],
-        "assimilation_coeff": [1, 2, 3],
-        "revolution_prob": np.linspace(0.02, 0.4, 4),
-        "revolution_rate": np.linspace(0.05, 0.4, 3),
-        "revolution_step_size": np.linspace(0.05, 0.3, 3),
-        "zeta": np.linspace(0.05, 0.2, 3),
+        "empire_count": 7,
+        "assimilation_coeff": 1.5,
+        "revolution_prob": 0.4,
+        "revolution_rate": 0.05,
+        "revolution_step_size": 0.175,
     },
-    mealpy.human_based.FBIO.DevFBIO.__name__: {},
+    mealpy.swarm_based.PSO.OriginalPSO.__name__: {
+        "c1": 1,
+        "c2": 2.05,
+        "w": 0.2,
+    },
     mealpy.human_based.SARO.OriginalSARO.__name__: {
-        "se": np.linspace(0.4, 0.7, 3),
-        "mu": [5, 10, 15, 20],
+        "se": 0.5,
+        "mu": 5,
     },
-    mealpy.evolutionary_based.GA.BaseGA.__name__: {},
-    mealpy.evolutionary_based.CRO.OCRO.__name__: {},
-    mealpy.evolutionary_based.DE.OriginalDE.__name__: {"strategy": range(6)},
+    mealpy.evolutionary_based.DE.OriginalDE.__name__: {
+        "strategy": 0,
+    },
     mealpy.math_based.PSS.OriginalPSS.__name__: {
-        "acceptance_rate": np.linspace(0.7, 0.96, 3),
-        "sampling_method": ["LHS", "MC"],
+        "acceptance_rate": 0.925,
     },
-    mealpy.math_based.SCA.DevSCA.__name__: {},
-    mealpy.math_based.HC.OriginalHC.__name__: {"neighbour_size": [75, 200, 700, 950]},
+    mealpy.math_based.HC.OriginalHC.__name__: {
+        "neighbour_size": 200,
+    },
 }
 
 
 OPTIMIZERS = [
-    mealpy.swarm_based.PSO.OriginalPSO,
-    mealpy.swarm_based.MSA.OriginalMSA,
-    mealpy.swarm_based.SCSO.OriginalSCSO,
-    mealpy.physics_based.SA.OriginalSA,
-    mealpy.physics_based.EVO.OriginalEVO,
-    mealpy.physics_based.EFO.DevEFO,
-    mealpy.physics_based.EO.ModifiedEO,
     mealpy.human_based.ICA.OriginalICA,
-    mealpy.human_based.FBIO.DevFBIO,
-    mealpy.human_based.SARO.OriginalSARO,
-    mealpy.evolutionary_based.GA.BaseGA,
-    mealpy.evolutionary_based.CRO.OCRO,
-    mealpy.evolutionary_based.DE.OriginalDE,
-    mealpy.math_based.PSS.OriginalPSS,
-    mealpy.math_based.SCA.DevSCA,
-    mealpy.math_based.HC.OriginalHC,
 ]
 
 
@@ -111,9 +88,9 @@ def evaluate(
 
 if __name__ == "__main__":
 
-    exec = TqdmPool(4)
+    exec = TqdmPool(5)
 
-    run_config = MealRunConfig(time_limit=15, silent=True, seed=0)
+    run_config = MealRunConfig(max_time=15, silent=True, seed=0)
 
     dataset = Dataset.create_random(location=OBJ_LOCATION, num_samples=20, seed=1)
 
@@ -134,7 +111,8 @@ if __name__ == "__main__":
                 kwargs[param_name] = param_config[i]
 
             try:
-                optimizer = optimizer_type(**kwargs)
+                optimizer = optimizer_type()
+                optimizer.set_parameters(kwargs)
 
                 for obj_name in OBJECT_NAMES:
 
@@ -146,7 +124,9 @@ if __name__ == "__main__":
                         eval_positions=dataset,
                         log_folder=f"grid_search/{obj_name}",
                     )
-            except:
+
+            except Exception as e:
                 print(f"Failed to create optimizer {optimizer_type.__name__} with params {kwargs}")
+                print(str(e))
 
     exec.shutdown(wait=True)
