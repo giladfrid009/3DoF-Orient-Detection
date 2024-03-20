@@ -52,6 +52,25 @@ class EvalLog:
 
         return pd.DataFrame(data)
 
+    def history_dataframe(self, add_params=False):
+        df_list = []
+
+        for i, hist in enumerate(self.run_hist_list):
+            data = {
+                "alg": ([self.alg_name] * hist.num_epochs),
+                "sample": ([i] * hist.num_epochs),
+                "epoch": range(hist.num_epochs),
+                "eval_loss": ([self.eval_loss_list[i]] * hist.num_epochs),
+                "list_epoch_time": hist.epoch_time_list,
+                "list_global_best_fit": hist.objective_loss_list,
+            }
+
+            if add_params:
+                data["params"] = str(self.alg_params)
+            df_list.append(pd.DataFrame(data))
+
+        return pd.concat(df_list, axis=0, ignore_index=True)
+
     def trajectory_dataframe(self, sample_id: int, add_params: bool = False) -> pd.DataFrame:
         assert len(self.trajectory) > sample_id
         trajectory = self.trajectory[sample_id]
@@ -66,6 +85,28 @@ class EvalLog:
         if add_params:
             for param, value in self.alg_params.items():
                 data[param] = [*([value] * n_epochs)]
+
+        return pd.DataFrame(data)
+
+    def eval_stats_dataframe(self, add_params: bool = False) -> pd.DataFrame:
+        eval_losses = np.array(self.eval_loss_list)
+        median = np.median(eval_losses)
+        mean = np.mean(eval_losses)
+        std = np.std(eval_losses)
+        min_val = np.min(eval_losses)
+        max_val = np.max(eval_losses)
+
+        data = {
+            "alg": [self.alg_name],
+            "mean": [mean],
+            "median": [median],
+            "std": [std],
+            "min_val": [min_val],
+            "max_val": [max_val],
+        }
+        if add_params:
+            for param, value in self.alg_params.items():
+                data[param] = [value]
 
         return pd.DataFrame(data)
 

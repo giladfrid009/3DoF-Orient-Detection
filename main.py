@@ -19,7 +19,16 @@ OBJ_LOCATION = (0, 1.3, 0.3)
 
 OBJECT_NAMES = ["airplane", "hammer", "hand", "headphones", "mouse", "mug", "stapler", "toothpaste"]
 
-EVAL_PENALTY = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+EVAL_PENALTY = {
+    "airplane": 0.08,
+    "hammer": 0.11,
+    "hand": 0.06,
+    "headphones": 0.12,
+    "mouse": 0.06,
+    "mug": 0.06,
+    "stapler": 0.05,
+    "toothpaste": 0.06,
+}
 
 OPTIMIZERS = [
     mealpy.swarm_based.PSO.OriginalPSO(c1=1, c2=2.05, w=0.2),
@@ -62,14 +71,14 @@ def evaluate(
 
         alg = MealAlgorithm(sim_viewer, loss_funcs.IOU(), optimizer)
         log = EvalLog(alg)
-        evaluator = Evaluator(world_viewer, sim_viewer, eval_func=eval_funcs.XorDiff(0.1), silent=True)
+
+        eval_func = eval_funcs.XorDiff(EVAL_PENALTY[obj_name])
+        evaluator = Evaluator(world_viewer, sim_viewer, eval_func=eval_func, silent=True)
         evaluator.evaluate(alg, run_config, eval_positions, log)
-
-        print(f"done evaling {obj_name}")
-
+        
         log.save(log_folder)
 
-        print(f"done saving {obj_name}")
+        print(log.to_dataframe(False))
 
 
 if __name__ == "__main__":
@@ -80,21 +89,26 @@ if __name__ == "__main__":
 
     dataset = Dataset.create_random(location=OBJ_LOCATION, num_samples=1, seed=1)
 
-    results = []
-
     tasks = []
 
     for optimizer in OPTIMIZERS:
-
         for obj_name in OBJECT_NAMES:
-
-            task = exec.submit(
+            """ task = exec.submit(
                 evaluate,
                 optimizer=optimizer,
                 run_config=run_config,
                 obj_name=obj_name,
                 eval_positions=dataset,
                 log_folder=f"grid_search/{obj_name}",
+            ) """
+
+            evaluate(
+                optimizer=optimizer,
+                run_config=run_config,
+                obj_name=obj_name,
+                eval_positions=dataset,
+                log_folder=f"grid_search/{obj_name}",
             )
+            
 
     exec.shutdown(wait=True)
