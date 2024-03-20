@@ -85,27 +85,17 @@ if __name__ == "__main__":
 
     run_config = MealRunConfig(max_time=15, silent=True, seed=0)
 
-    dataset = Dataset.create_random(location=OBJ_LOCATION, num_samples=1, seed=1)
-
-    tasks = []
+    dataset = Dataset.create_random(location=OBJ_LOCATION, num_samples=100, seed=0)
 
     for optimizer in OPTIMIZERS:
         for obj_name in OBJECT_NAMES:
-            """task = exec.submit(
+            task = exec.submit(
                 evaluate,
                 optimizer=optimizer,
                 run_config=run_config,
                 obj_name=obj_name,
                 eval_positions=dataset,
-                log_folder=f"grid_search/{obj_name}",
-            )"""
-
-            evaluate(
-                optimizer=optimizer,
-                run_config=run_config,
-                obj_name=obj_name,
-                eval_positions=dataset,
-                log_folder=f"grid_search/{obj_name}",
+                log_folder=f"runs/{obj_name}",
             )
 
     exec.shutdown(wait=True)

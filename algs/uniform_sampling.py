@@ -49,7 +49,6 @@ class UniformSampling(Algorithm):
         return best_orient, run_hist
 
 
-# TODO: FIX
 class IDUniformSampling(Algorithm):
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         super().__init__(test_viewer, loss_func)
