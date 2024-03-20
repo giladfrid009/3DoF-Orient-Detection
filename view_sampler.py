@@ -16,19 +16,13 @@ class CameraConfig:
 
 
 class ViewSampler:
-    def __init__(
-        self,
-        world_file: str,
-        camera_config: CameraConfig,
-        simulation_time: float = 0,
-    ):
+    def __init__(self, world_file: str, camera_config: CameraConfig):
         self._simulator = Simulator(
             resolution=camera_config.resolution,
             fov=camera_config.fov,
             world_file=world_file,
         )
         self._camera_config = camera_config
-        self._simulation_time = simulation_time
 
     @property
     def simulator(self):
@@ -55,12 +49,10 @@ class ViewSampler:
         self,
         position: ObjectPosition,
         depth: bool = False,
-        allow_simulation: bool = True,
     ) -> tuple[np.ndarray, ObjectPosition]:
 
         self.simulator.set_object_location(position.location)
         self.simulator.set_object_orientation(position.orientation)
-        self.simulator.simulate_seconds(self._simulation_time if allow_simulation else 0)
         image = self._render_image(depth=False)
 
         if depth:
@@ -77,10 +69,9 @@ class ViewSampler:
         position: ObjectPosition,
         depth: bool = False,
         margin_factor: float = 1.2,
-        allow_simulation: bool = True,
     ) -> tuple[np.ndarray, ObjectPosition]:
 
-        image, position = self.get_view(position, depth, allow_simulation=allow_simulation)
+        image, position = self.get_view(position, depth)
         mask = ImageUtils.calc_mask(image, bg_value=0)
         x1, y1, x2, y2 = ImageUtils.calc_bboxes(mask, margin_factor)
         cropped = image[x1:x2, y1:y2, :]

@@ -5,7 +5,7 @@ from mealpy.utils.history import History
 import numpy as np
 
 from utils.orient import OrientUtils
-from algs.algorithm import Algorithm, RunConfig
+from algs.algorithm import *
 from view_sampler import ViewSampler
 from loss_funcs import LossFunc
 
@@ -80,7 +80,7 @@ class MealAlgorithm(Algorithm):
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
         run_config: MealRunConfig,
-    ) -> tuple[tuple[float, float, float], float]:
+    ) -> tuple[tuple[float, float, float], RunHistory]:
 
         obj_func = lambda test_orient: self.calc_loss(ref_location, ref_img, test_orient)
 
@@ -106,4 +106,6 @@ class MealAlgorithm(Algorithm):
             seed=run_config.seed,
         )
 
-        return best.solution, best.target.fitness
+        run_hist = RunHistory(self.history.list_epoch_time, self.history.list_global_best_fit)
+
+        return best.solution, run_hist

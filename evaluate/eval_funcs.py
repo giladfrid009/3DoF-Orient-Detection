@@ -1,6 +1,11 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
+
 from utils.image import ImageUtils
+from view_sampler import ViewSampler
+from utils.orient import OrientUtils
+from manipulated_object import ObjectPosition
 
 
 class EvalFunc(ABC):
@@ -67,6 +72,27 @@ class EvalFunc(ABC):
 
     def get_name(self) -> str:
         return type(self).__name__
+
+
+def calculate_penalty(depth_viewer: ViewSampler, num_samples: int, seed: int = None) -> float:
+    positions1 = OrientUtils.generate_random(num_samples, seed)
+    positions2 = OrientUtils.generate_random(num_samples, seed)
+
+    total = 0
+    count = 0
+
+    for pos1, pos2 in zip(positions1, positions2):
+        depth1, _ = depth_viewer.get_view_cropped(pos1, depth=True)
+        depth2, _ = depth_viewer.get_view_cropped(pos2, depth=True)
+        pad_shape = np.maximum(depth1.shape, depth2.shape)
+        depth1 = ImageUtils.pad_to_shape(depth1, pad_shape, pad_value=0)
+        depth2 = ImageUtils.pad_to_shape(depth2, pad_shape, pad_value=0)
+        both = (depth1 > 0) & (depth2 > 0)
+        total += np.sum(np.abs(depth1[both] - depth2[both]))
+        count += np.sum(both)
+
+    penalty = total / count
+    return penalty
 
 
 class XorDiff(EvalFunc):

@@ -54,12 +54,6 @@ class Simulator:
         image = self._depth_renderer.render()
         return image
 
-    def simulate_seconds(self, seconds: float):
-        seconds = max(0, seconds)
-        iters = int(seconds / self._model.opt.timestep)
-        for _ in range(iters):
-            mj.mj_step(self._model, self._data)
-
     def close(self):
         self._renderer.close()
         self._depth_renderer.close()

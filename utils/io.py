@@ -1,5 +1,4 @@
 import dill
-import pickle
 from pathlib import Path
 
 
@@ -8,7 +7,7 @@ def save_pickle(file_path: str, obj):
 
     try:
         with open(file_path, "wb") as f:
-            pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
+            dill.dump(obj, f, protocol=dill.HIGHEST_PROTOCOL)
     except Exception as e:
         raise ValueError(f"error saving object to pickle file: {e}")
 
@@ -16,7 +15,7 @@ def save_pickle(file_path: str, obj):
 def load_pickle(file_path: str) -> object:
     try:
         with open(file_path, "rb") as f:
-            return pickle.load(f)
+            return dill.load(f)
     except FileNotFoundError:
         raise FileNotFoundError(f"file does not exist: {file_path}")
     except Exception as e:

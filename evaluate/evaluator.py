@@ -11,10 +11,17 @@ from evaluate.eval_log import EvalLog
 
 
 class Evaluator:
-    def __init__(self, rgb_viewer: ViewSampler, depth_viewer: ViewSampler, eval_func: EvalFunc) -> None:
+    def __init__(
+        self,
+        rgb_viewer: ViewSampler,
+        depth_viewer: ViewSampler,
+        eval_func: EvalFunc,
+        silent: bool = False,
+    ) -> None:
         self.world_viewer = rgb_viewer
         self.depth_viewer = depth_viewer
         self.eval_func = eval_func
+        self.silent = silent
 
     def evaluate(
         self,
@@ -22,58 +29,41 @@ class Evaluator:
         run_config: RunConfig,
         eval_positions: Iterable[ObjectPosition],
         log: EvalLog = None,
-        plotter: PlotterBase = None,
+        plot: PlotterBase = None,
     ) -> list[float]:
 
-        if log is not None and not isinstance(alg, MealAlgorithm):
-            raise ValueError("Log can only be used with MealPy algorithms")
-
-        print(f"Algorithm: {alg.get_name()} | Objective Func: {alg.loss_func.get_name()}")
-        print(f"Config: {run_config}")
-
-        if plotter is not None:
-            alg.register_callback(plotter.add_data)
-
-        losses = []
         alg.set_mode(eval=True)
 
-        for position in tqdm(eval_positions, desc=f"Running Evaluation"):
+        if not self.silent:
+            print(f"Algorithm: {alg.get_name()} | Objective Func: {alg.loss_func.get_name()}")
+            print(f"Config: {run_config}")
 
-            if plotter is not None:
-                plotter.reset()
+        if plot is not None:
+            alg.register_callback(plot.add_data)
 
-            ref_img, _ = self.world_viewer.get_view_cropped(
-                position,
-                depth=False,
-                allow_simulation=False,
-            )
+        eval_losses = []
 
-            pred_orient, _ = alg.solve(ref_img, position.location, run_config)
+        for position in tqdm(eval_positions, desc=f"Running Evaluation", disable=self.silent):
 
-            ref_depth, _ = self.depth_viewer.get_view_cropped(
-                position=position,
-                depth=True,
-                allow_simulation=False,
-            )
+            if plot is not None:
+                plot.reset()
 
-            pred_depth, _ = self.depth_viewer.get_view_cropped(
-                position=ObjectPosition(pred_orient, position.location),
-                depth=True,
-                allow_simulation=False,
-            )
+            ref_img, _ = self.world_viewer.get_view_cropped(position, depth=False)
+            ref_depth, _ = self.depth_viewer.get_view_cropped(position, depth=True)
 
-            loss = self.eval_func(ref_depth, pred_depth)
-            losses.append(loss)
+            pred_orient, run_hist = alg.solve(ref_img, position.location, run_config)
+            pred_position = ObjectPosition(pred_orient, position.location)
+            pred_depth, _ = self.depth_viewer.get_view_cropped(pred_position, depth=True)
+
+            eval_loss = self.eval_func(ref_depth, pred_depth)
+            eval_losses.append(eval_loss)
 
             if log is not None:
-                if isinstance(alg, MealAlgorithm):
-                    log.add_result(loss, position, ObjectPosition(pred_orient, position.location), alg.history)
-                else:
-                    log.add_result(loss, position, ObjectPosition(pred_orient, position.location))
+                log.add_result(eval_loss, run_hist, position, pred_position)
+
+        if plot is not None:
+            alg.remove_callback(plot.add_data)
 
         alg.set_mode(eval=False)
 
-        if plotter is not None:
-            alg.remove_callback(plotter.add_data)
-
-        return losses
+        return eval_losses

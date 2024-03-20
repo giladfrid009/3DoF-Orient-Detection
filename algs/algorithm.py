@@ -16,6 +16,20 @@ class RunConfig:
     silent: bool = False
 
 
+class RunHistory:
+    def __init__(self, epoch_time_list: list[float] = [], objective_loss_list: list[float] = []):
+        self.epoch_time_list: list[float] = epoch_time_list
+        self.objective_loss_list: list[float] = objective_loss_list
+
+    @property
+    def num_epochs(self) -> int:
+        return len(self.epoch_time_list)
+
+    def add_epoch(self, epoch_time: float, objective_loss: float):
+        self.epoch_time_list.append(epoch_time)
+        self.objective_loss_list.append(objective_loss)
+
+
 class Algorithm(ABC):
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc):
         self._test_viewer = test_viewer
@@ -51,10 +65,7 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         test_orient: tuple[float, float, float],
     ) -> float:
-        test_img, _ = self._test_viewer.get_view_cropped(
-            position=ObjectPosition(test_orient, ref_location),
-            allow_simulation=self.eval_mode == False,
-        )
+        test_img, _ = self._test_viewer.get_view_cropped(ObjectPosition(test_orient, ref_location))
 
         loss = self.loss_func(ref_img, test_img)
 
@@ -70,5 +81,5 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
         alg_config: RunConfig,
-    ) -> tuple[tuple[float, float, float], float]:
+    ) -> tuple[tuple[float, float, float], RunHistory]:
         pass
