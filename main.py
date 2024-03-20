@@ -75,10 +75,8 @@ def evaluate(
         eval_func = eval_funcs.XorDiff(EVAL_PENALTY[obj_name])
         evaluator = Evaluator(world_viewer, sim_viewer, eval_func=eval_func, silent=True)
         evaluator.evaluate(alg, run_config, eval_positions, log)
-        
-        log.save(log_folder)
 
-        print(log.to_dataframe(False))
+        log.save(log_folder)
 
 
 if __name__ == "__main__":
@@ -93,14 +91,14 @@ if __name__ == "__main__":
 
     for optimizer in OPTIMIZERS:
         for obj_name in OBJECT_NAMES:
-            """ task = exec.submit(
+            """task = exec.submit(
                 evaluate,
                 optimizer=optimizer,
                 run_config=run_config,
                 obj_name=obj_name,
                 eval_positions=dataset,
                 log_folder=f"grid_search/{obj_name}",
-            ) """
+            )"""
 
             evaluate(
                 optimizer=optimizer,
@@ -109,6 +107,5 @@ if __name__ == "__main__":
                 eval_positions=dataset,
                 log_folder=f"grid_search/{obj_name}",
             )
-            
 
     exec.shutdown(wait=True)
