@@ -195,6 +195,7 @@ class ARE(LossFunc):
         self.num_bins = num_bins
 
     def digitize(self, image: np.ndarray, num_bins: int) -> np.ndarray:
+        image = color.rgb2gray(image)
         if num_bins == 1:
             return (image > 0).astype(np.uint8, copy=False)
 
@@ -215,6 +216,7 @@ class VI(LossFunc):
         self.num_bins = num_bins
 
     def digitize(self, image: np.ndarray, num_bins: int) -> np.ndarray:
+        image = color.rgb2gray(image)
         if num_bins == 1:
             return (image > 0).astype(np.uint8, copy=False)
 

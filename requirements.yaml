@@ -18,6 +18,7 @@ dependencies:
   - glfw
   - dill
   - pandas
+  - scipy
   - ipykernel
   - ipywidgets
   - seaborn
