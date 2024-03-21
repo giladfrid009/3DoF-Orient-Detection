@@ -205,8 +205,7 @@ class ARE(LossFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         image_truth = self.digitize(image_truth, self.num_bins)
         image_other = self.digitize(image_other, self.num_bins)
-        table = metrics.contingency_table(image_truth, image_other, ignore_labels=None)
-        error, _, _ = metrics.adapted_rand_error(image_truth, image_other, table=table, ignore_labels=None)
+        error, _, _ = metrics.adapted_rand_error(image_truth, image_other, ignore_labels=None)
         return error
 
 
@@ -226,6 +225,5 @@ class VI(LossFunc):
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
         image_truth = self.digitize(image_truth, self.num_bins)
         image_other = self.digitize(image_other, self.num_bins)
-        table = metrics.contingency_table(image_truth, image_other, ignore_labels=None)
-        h1, h2 = metrics.variation_of_information(image_truth, image_other, table=table, ignore_labels=None)
+        h1, h2 = metrics.variation_of_information(image_truth, image_other, ignore_labels=None)
         return h2
