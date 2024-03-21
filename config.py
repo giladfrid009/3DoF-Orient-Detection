@@ -27,7 +27,6 @@ LOSS_NAMES = [
     loss_funcs.IOU.__name__,
     loss_funcs.MSE.__name__,
     loss_funcs.RMSE.__name__,
-    loss_funcs.WeightedSum.__name__,
     loss_funcs.NMI.__name__,
     loss_funcs.PSNR.__name__,
     loss_funcs.SSIM.__name__,

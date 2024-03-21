@@ -190,40 +190,40 @@ class Hausdorff(LossFunc):
 
 
 class ARE(LossFunc):
-    def __init__(self, quant_level: int = 1) -> None:
-        assert quant_level > 0
-        self.quant_level = quant_level
+    def __init__(self, num_bins: int = 1) -> None:
+        assert num_bins > 0
+        self.num_bins = num_bins
 
-    def quantize(self, image: np.ndarray, levels: int) -> np.ndarray:
-        if levels == 1:
+    def digitize(self, image: np.ndarray, num_bins: int) -> np.ndarray:
+        if num_bins == 1:
             return (image > 0).astype(np.uint8, copy=False)
 
-        bins = np.concatenate([[0], np.linspace(1, 255, levels, endpoint=True)])
+        bins = np.concatenate([[0], np.linspace(1, 255, num_bins, endpoint=True)])
         return np.digitize(image, bins)
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        quant_truth = self.quantize(image_truth, self.quant_level)
-        quant_other = self.quantize(image_other, self.quant_level)
-        table = metrics.contingency_table(quant_truth, quant_other, ignore_labels=None)
-        error, _, _ = metrics.adapted_rand_error(quant_truth, quant_other, table=table, ignore_labels=None)
+        image_truth = self.digitize(image_truth, self.num_bins)
+        image_other = self.digitize(image_other, self.num_bins)
+        table = metrics.contingency_table(image_truth, image_other, ignore_labels=None)
+        error, _, _ = metrics.adapted_rand_error(image_truth, image_other, table=table, ignore_labels=None)
         return error
 
 
 class VI(LossFunc):
-    def __init__(self, quant_level: int = 1) -> None:
-        assert quant_level > 0
-        self.quant_level = quant_level
+    def __init__(self, num_bins: int = 1) -> None:
+        assert num_bins > 0
+        self.num_bins = num_bins
 
-    def quantize(self, image: np.ndarray, levels: int) -> np.ndarray:
-        if levels == 1:
+    def digitize(self, image: np.ndarray, num_bins: int) -> np.ndarray:
+        if num_bins == 1:
             return (image > 0).astype(np.uint8, copy=False)
 
-        bins = np.concatenate([[0], np.linspace(1, 255, levels, endpoint=True)])
+        bins = np.concatenate([[0], np.linspace(1, 255, num_bins, endpoint=True)])
         return np.digitize(image, bins)
 
     def _calculate(self, image_truth: np.ndarray, image_other: np.ndarray) -> float:
-        quant_truth = self.quantize(image_truth, self.quant_level)
-        quant_other = self.quantize(image_other, self.quant_level)
-        table = metrics.contingency_table(quant_truth, quant_other, ignore_labels=None)
-        h1, h2 = metrics.variation_of_information(quant_truth, quant_other, table=table, ignore_labels=None)
+        image_truth = self.digitize(image_truth, self.num_bins)
+        image_other = self.digitize(image_other, self.num_bins)
+        table = metrics.contingency_table(image_truth, image_other, ignore_labels=None)
+        h1, h2 = metrics.variation_of_information(image_truth, image_other, table=table, ignore_labels=None)
         return h2
