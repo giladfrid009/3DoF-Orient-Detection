@@ -12,11 +12,9 @@ from evaluate.evaluator import Evaluator
 from utils.concurrent import TqdmPool
 import config
 
-import mealpy
-
 
 def evaluate(
-    alg_name: mealpy.Optimizer,
+    alg_name: str,
     run_config: RunConfig,
     obj_name: str,
     eval_data: Iterable[ObjectPosition],

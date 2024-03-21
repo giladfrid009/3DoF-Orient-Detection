@@ -34,6 +34,9 @@ class Files:
 
         self.results = sorted(self.results, key=lambda f: f.name)
 
+    def __getitem__(self, index: int) -> os.DirEntry:
+        return self.results[index]
+
     def __iter__(self):
         self._pos = -1
         return self
