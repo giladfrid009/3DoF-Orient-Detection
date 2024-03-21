@@ -23,6 +23,43 @@ OBJECT_NAMES = [
     "toothpaste",
 ]
 
+LOSS_NAMES = [
+    loss_funcs.IOU.__name__,
+    loss_funcs.MSE.__name__,
+    loss_funcs.RMSE.__name__,
+    loss_funcs.WeightedSum.__name__,
+    loss_funcs.NMI.__name__,
+    loss_funcs.PSNR.__name__,
+    loss_funcs.SSIM.__name__,
+    loss_funcs.Hausdorff.__name__,
+    loss_funcs.ARE.__name__,
+    loss_funcs.VI.__name__,
+]
+
+
+def create_loss_func(name: str) -> loss_funcs.LossFunc:
+    if name == loss_funcs.IOU.__name__:
+        return loss_funcs.IOU()
+    elif name == loss_funcs.MSE.__name__:
+        return loss_funcs.MSE()
+    elif name == loss_funcs.RMSE.__name__:
+        return loss_funcs.RMSE(norm="euclidean")
+    elif name == loss_funcs.WeightedSum.__name__:
+        return loss_funcs.WeightedSum(loss_funcs.IOU(), loss_funcs.RMSE(norm="euclidean"))
+    elif name == loss_funcs.NMI.__name__:
+        return loss_funcs.NMI(bins=50)
+    elif name == loss_funcs.PSNR.__name__:
+        return loss_funcs.PSNR()
+    elif name == loss_funcs.SSIM.__name__:
+        return loss_funcs.SSIM()
+    elif name == loss_funcs.Hausdorff.__name__:
+        return loss_funcs.Hausdorff()
+    elif name == loss_funcs.ARE.__name__:
+        return loss_funcs.ARE()
+    elif name == loss_funcs.VI.__name__:
+        return loss_funcs.VI()
+
+
 XORDIFF_PENALTY = {
     "airplane": 0.08,
     "hammer": 0.11,
@@ -59,26 +96,24 @@ ALGORITHM_NAMES = [
 
 def create_algorithm(
     name: str,
-    world_viewer: ViewSampler,
     sim_viewer: ViewSampler,
     loss_func=loss_funcs.IOU(),
 ) -> Algorithm:
-    name = name.lower()
-    if name == mealpy.PSO.OriginalPSO.__name__.lower():
+    if name == mealpy.PSO.OriginalPSO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.PSO.OriginalPSO(c1=1, c2=2.05, w=0.2))
-    elif name == mealpy.MSA.OriginalMSA.__name__.lower():
+    elif name == mealpy.MSA.OriginalMSA.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.MSA.OriginalMSA())
-    elif name == mealpy.SCSO.OriginalSCSO.__name__.lower():
+    elif name == mealpy.SCSO.OriginalSCSO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.SCSO.OriginalSCSO())
-    elif name == mealpy.SA.OriginalSA.__name__.lower():
+    elif name == mealpy.SA.OriginalSA.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.SA.OriginalSA())
-    elif name == mealpy.EVO.OriginalEVO.__name__.lower():
+    elif name == mealpy.EVO.OriginalEVO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.EVO.OriginalEVO())
-    elif name == mealpy.EFO.DevEFO.__name__.lower():
+    elif name == mealpy.EFO.DevEFO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.EFO.DevEFO())
-    elif name == mealpy.EO.ModifiedEO.__name__.lower():
+    elif name == mealpy.EO.ModifiedEO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.EO.ModifiedEO())
-    elif name == mealpy.ICA.OriginalICA.__name__.lower():
+    elif name == mealpy.ICA.OriginalICA.__name__:
         return MealAlgorithm(
             sim_viewer,
             loss_func,
@@ -90,27 +125,27 @@ def create_algorithm(
                 revolution_step_size=0.175,
             ),
         )
-    elif name == mealpy.FBIO.DevFBIO.__name__.lower():
+    elif name == mealpy.FBIO.DevFBIO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.FBIO.DevFBIO())
-    elif name == mealpy.SARO.OriginalSARO.__name__.lower():
+    elif name == mealpy.SARO.OriginalSARO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.SARO.OriginalSARO(se=0.5, mu=5))
-    elif name == mealpy.GA.BaseGA.__name__.lower():
+    elif name == mealpy.GA.BaseGA.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.GA.BaseGA())
-    elif name == mealpy.CRO.OCRO.__name__.lower():
+    elif name == mealpy.CRO.OCRO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.CRO.OCRO())
-    elif name == mealpy.DE.OriginalDE.__name__.lower():
+    elif name == mealpy.DE.OriginalDE.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.DE.OriginalDE(strategy=0))
-    elif name == mealpy.PSS.OriginalPSS.__name__.lower():
+    elif name == mealpy.PSS.OriginalPSS.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.PSS.OriginalPSS(acceptance_rate=0.925))
-    elif name == mealpy.SCA.DevSCA.__name__.lower():
+    elif name == mealpy.SCA.DevSCA.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.SCA.DevSCA())
-    elif name == mealpy.HC.OriginalHC.__name__.lower():
+    elif name == mealpy.HC.OriginalHC.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.HC.OriginalHC(neighbour_size=200))
-    elif name == UniformSampling.__name__.lower():
-        return UniformSampling(world_viewer, loss_func, num_samples=10000, epoch_size=50)
-    elif name == IDUniformSampling.__name__.lower():
-        return IDUniformSampling(world_viewer, loss_func)
-    elif name == RandomSampling.__name__.lower():
-        return RandomSampling(world_viewer, loss_func, epoch_size=50)
+    elif name == UniformSampling.__name__:
+        return UniformSampling(sim_viewer, loss_func, num_samples=10000, epoch_size=50)
+    elif name == IDUniformSampling.__name__:
+        return IDUniformSampling(sim_viewer, loss_func)
+    elif name == RandomSampling.__name__:
+        return RandomSampling(sim_viewer, loss_func, epoch_size=50)
     else:
         raise ValueError(f"Unknown algorithm: {name}")
