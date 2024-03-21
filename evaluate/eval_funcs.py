@@ -49,7 +49,7 @@ class EvalFunc(ABC):
     def get_name(self) -> str:
         return type(self).__name__
 
-
+# TODO: UPDATE LOGIC
 def calculate_penalty(depth_viewer: ViewSampler, num_samples: int, seed: int = None) -> float:
     positions1 = OrientUtils.generate_random(num_samples, seed)
     positions2 = OrientUtils.generate_random(num_samples, seed)

@@ -70,6 +70,8 @@ class Dataset:
             max_shape = shapes.max(axis=0)
             images = [ImageUtils.pad_to_shape(img, max_shape) for img in images]
 
+            images = [cv.cvtColor(img, cv.COLOR_RGB2BGR) for img in images]
+
             for j, img in enumerate(images):
                 cv.putText(
                     img,
