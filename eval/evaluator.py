@@ -3,11 +3,11 @@ from typing import Iterable
 
 from utils.visualize import PlotterBase
 from view_sampler import ViewSampler
-from evaluate.eval_funcs import EvalFunc
+from eval.eval_funcs import EvalFunc
 from manipulated_object import ObjectPosition
 from algs.algorithm import Algorithm, RunConfig
 from algs.mealpy_algorithm import MealAlgorithm
-from evaluate.eval_log import EvalLog
+from eval.eval_log import EvalLog
 
 
 class Evaluator:

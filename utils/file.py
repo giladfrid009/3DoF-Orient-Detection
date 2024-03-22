@@ -1,5 +1,5 @@
 import os
-from evaluate.eval_log import EvalLog
+from eval.eval_log import EvalLog
 import pandas as pd
 
 
@@ -7,12 +7,12 @@ class Files:
     def __init__(
         self,
         directory: str,
-        extention: str = "",
+        extension: str = "",
         scan_dirs: bool = False,
         return_full_path: bool = True,
     ) -> None:
         self.root = directory
-        self.extention = extention
+        self.extension = extension
         self.scan_dirs: bool = scan_dirs
         self.return_full_path = return_full_path
         self.results: list[os.DirEntry] = []
@@ -29,7 +29,7 @@ class Files:
             if self.scan_dirs and result.is_dir():
                 self.results.append(result)
             else:
-                if result.name.endswith(self.extention):
+                if result.name.endswith(self.extension):
                     self.results.append(result)
 
         self.results = sorted(self.results, key=lambda f: f.name)
@@ -68,9 +68,13 @@ class Files:
 
 class LogFiles(Files):
     def __init__(
-        self, directory: str, extention: str = ".pickle", scan_dirs: bool = False, return_full_path: bool = True
+        self,
+        directory: str,
+        extension: str = ".pickle",
+        scan_dirs: bool = False,
+        return_full_path: bool = True,
     ) -> None:
-        super().__init__(directory, extention, scan_dirs, return_full_path)
+        super().__init__(directory, extension, scan_dirs, return_full_path)
 
     def _load(self) -> EvalLog:
         return EvalLog.load(self.get_path())
@@ -78,7 +82,3 @@ class LogFiles(Files):
     def to_dataframe(self, add_params: bool = False) -> pd.DataFrame:
         log = self._load()
         return log.to_dataframe(add_params)
-
-    def trajectory_dataframe(self, sample_id: int, add_params: bool = False) -> pd.DataFrame:
-        log = self._load()
-        return log.trajectory_dataframe(sample_id, add_params)

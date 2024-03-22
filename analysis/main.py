@@ -5,10 +5,10 @@ import concurrent.futures
 from view_sampler import *
 from algs import *
 
-from evaluate import eval_funcs
+from eval import eval_funcs
 
-from evaluate.eval_log import EvalLog
-from evaluate.evaluator import Evaluator
+from eval.eval_log import EvalLog
+from eval.evaluator import Evaluator
 from utils.concurrent import TqdmPool
 import analysis.config as config
 

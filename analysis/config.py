@@ -4,7 +4,7 @@ import mealpy
 from algs import *
 from view_sampler import ViewSampler, CameraConfig
 import loss_funcs
-from evaluate.dataset import Dataset
+from eval.dataset import Dataset
 
 OBJ_LOCATION = (0, 1.3, 0.3)
 
