@@ -48,12 +48,11 @@ class Evaluator:
             if plot is not None:
                 plot.reset()
 
-            ref_img, _ = self.world_viewer.get_view_cropped(position, depth=False)
-            ref_depth, _ = self.depth_viewer.get_view_cropped(position, depth=True)
+            ref_img = self.world_viewer.get_view_cropped(position, depth=False)
+            ref_depth = self.depth_viewer.get_view_cropped(position, depth=True)
 
-            pred_orient, run_hist = alg.solve(ref_img, position.location, run_config)
-            pred_position = ObjectPosition(pred_orient, position.location)
-            pred_depth, _ = self.depth_viewer.get_view_cropped(pred_position, depth=True)
+            pred_position, run_hist = alg.solve(ref_img, position.location, run_config)
+            pred_depth = self.depth_viewer.get_view_cropped(pred_position, depth=True)
 
             eval_loss = self.eval_func(ref_depth, pred_depth)
             eval_losses.append(eval_loss)

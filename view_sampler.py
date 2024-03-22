@@ -49,7 +49,7 @@ class ViewSampler:
         self,
         position: ObjectPosition,
         depth: bool = False,
-    ) -> tuple[np.ndarray, ObjectPosition]:
+    ) -> np.ndarray:
 
         self.simulator.set_object_location(position.location)
         self.simulator.set_object_orientation(position.orientation)
@@ -61,21 +61,20 @@ class ViewSampler:
             zero_mask = np.expand_dims(~segm, axis=-1) | (image >= self.camera_config.zfar)
             image[zero_mask] = 0
 
-        position = self.simulator.get_object_position()
-        return image, position
+        return image
 
     def get_view_cropped(
         self,
         position: ObjectPosition,
         depth: bool = False,
         margin_factor: float = 1.2,
-    ) -> tuple[np.ndarray, ObjectPosition]:
+    ) -> np.ndarray:
 
-        image, position = self.get_view(position, depth)
+        image = self.get_view(position, depth)
         mask = ImageUtils.calc_mask(image, bg_value=0)
         x1, y1, x2, y2 = ImageUtils.calc_bboxes(mask, margin_factor)
         cropped = image[x1:x2, y1:y2, :]
-        return cropped, position
+        return cropped
 
     def close(self):
         self.simulator.close()

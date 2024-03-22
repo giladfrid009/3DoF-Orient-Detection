@@ -17,13 +17,13 @@ class RandomSampling(Algorithm):
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
         run_config: RunConfig,
-    ) -> tuple[tuple[float, float, float], RunHistory]:
+    ) -> tuple[ObjectPosition, RunHistory]:
         lowest_loss = np.inf
         best_orient = None
 
-        start_time = time.time()
+        run_start_time = time.time()
+        epoch_start_time = run_start_time
         run_hist = RunHistory()
-        epoch_start_time = start_time
         
         for epoch in range(run_config.max_epoch):
             orients = OrientUtils.generate_random(self.epoch_size, run_config.seed)
@@ -37,7 +37,8 @@ class RandomSampling(Algorithm):
             epoch_time = epoch_end_time - epoch_start_time
             epoch_start_time = epoch_end_time
             run_hist.add_epoch(epoch_time, lowest_loss)
-            if epoch_end_time - start_time > run_config.max_time:
+            if epoch_end_time - run_start_time > run_config.max_time:
                 break
 
-        return best_orient, run_hist
+        pred_position = ObjectPosition(best_orient, ref_location)
+        return pred_position, lowest_loss

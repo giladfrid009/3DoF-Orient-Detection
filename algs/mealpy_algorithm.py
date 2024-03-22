@@ -80,7 +80,7 @@ class MealAlgorithm(Algorithm):
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
         run_config: MealRunConfig,
-    ) -> tuple[tuple[float, float, float], RunHistory]:
+    ) -> tuple[ObjectPosition, RunHistory]:
 
         obj_func = lambda test_orient: self.calc_loss(ref_location, ref_img, test_orient)
 
@@ -107,5 +107,5 @@ class MealAlgorithm(Algorithm):
         )
 
         run_hist = RunHistory(self.history.list_epoch_time, self.history.list_global_best_fit)
-
-        return best.solution, run_hist
+        pred_position = ObjectPosition(best.solution, ref_location)
+        return pred_position, run_hist

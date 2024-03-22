@@ -10,7 +10,7 @@ from evaluate import eval_funcs
 from evaluate.eval_log import EvalLog
 from evaluate.evaluator import Evaluator
 from utils.concurrent import TqdmPool
-import config
+import analysis.config as config
 
 
 def evaluate(
@@ -37,10 +37,11 @@ def evaluate(
     except Exception as e:
         raise Exception(f"Error in {alg_name} for {obj_name}: {e}") from e
 
+import multiprocessing
 
 if __name__ == "__main__":
 
-    exec = TqdmPool(max_workers=4)
+    exec = TqdmPool(mp_context=multiprocessing.get_context("fork"))
 
     run_config = MealRunConfig(max_time=15, silent=True, seed=0)
 

@@ -65,7 +65,7 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         test_orient: tuple[float, float, float],
     ) -> float:
-        test_img, _ = self._test_viewer.get_view_cropped(ObjectPosition(test_orient, ref_location))
+        test_img = self._test_viewer.get_view_cropped(ObjectPosition(test_orient, ref_location))
 
         loss = self.loss_func(ref_img, test_img)
 
@@ -81,5 +81,5 @@ class Algorithm(ABC):
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
         alg_config: RunConfig,
-    ) -> tuple[tuple[float, float, float], RunHistory]:
+    ) -> tuple[ObjectPosition, RunHistory]:
         pass

@@ -18,7 +18,6 @@ class EvalLog:
         self.eval_loss_list = []
         self.obj_position_list = []
         self.pred_position_list = []
-        self.trajectory: list[list[tuple[int, int, int]]] = []
 
     def add_result(
         self,
@@ -32,10 +31,6 @@ class EvalLog:
         self.obj_position_list.append(obj_position)
         self.pred_position_list.append(pred_position)
 
-    def add_trajectory(self, x: float, y: float, z: float, loss: float):
-        sample = len(self.eval_loss_list)
-        self.trajectory[sample].append({"pred_orientation": [x, y, z], "loss": loss})
-
     def to_dataframe(self, add_params: bool = False) -> pd.DataFrame:
         n_samples = len(self.eval_loss_list)
 
@@ -46,6 +41,7 @@ class EvalLog:
             "ref_pos": [*self.obj_position_list],
             "pred_pos": [*self.pred_position_list],
         }
+        
         if add_params:
             for param, value in self.alg_params.items():
                 data[param] = [*([value] * n_samples)]
@@ -71,23 +67,6 @@ class EvalLog:
 
         return pd.concat(df_list, axis=0, ignore_index=True)
 
-    def trajectory_dataframe(self, sample_id: int, add_params: bool = False) -> pd.DataFrame:
-        assert len(self.trajectory) > sample_id
-        trajectory = self.trajectory[sample_id]
-        n_epochs = len(trajectory)
-        ref_ori = self.obj_position_list[sample_id].orientation
-        data = {
-            "alg": [*([self.alg_name] * n_epochs)],
-            "epoch": [*range(n_epochs)],
-            "ref_orientation": [*([ref_ori] * n_epochs)],
-            "pred_orientation": [*self.trajectory],
-        }
-        if add_params:
-            for param, value in self.alg_params.items():
-                data[param] = [*([value] * n_epochs)]
-
-        return pd.DataFrame(data)
-
     def eval_stats_dataframe(self, add_params: bool = False) -> pd.DataFrame:
         eval_losses = np.array(self.eval_loss_list)
         median = np.median(eval_losses)
@@ -104,6 +83,7 @@ class EvalLog:
             "min_val": [min_val],
             "max_val": [max_val],
         }
+        
         if add_params:
             for param, value in self.alg_params.items():
                 data[param] = [value]

@@ -58,8 +58,8 @@ def calculate_penalty(depth_viewer: ViewSampler, num_samples: int, seed: int = N
     count = 0
 
     for pos1, pos2 in zip(positions1, positions2):
-        depth1, _ = depth_viewer.get_view_cropped(pos1, depth=True)
-        depth2, _ = depth_viewer.get_view_cropped(pos2, depth=True)
+        depth1 = depth_viewer.get_view_cropped(pos1, depth=True)
+        depth2 = depth_viewer.get_view_cropped(pos2, depth=True)
         pad_shape = np.maximum(depth1.shape, depth2.shape)
         depth1 = ImageUtils.pad_to_shape(depth1, pad_shape, pad_value=0)
         depth2 = ImageUtils.pad_to_shape(depth2, pad_shape, pad_value=0)

@@ -19,13 +19,13 @@ class UniformSampling(Algorithm):
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
         run_config: RunConfig,
-    ) -> tuple[tuple[float, float, float], RunHistory]:
+    ) -> tuple[ObjectPosition, RunHistory]:
         lowest_loss = np.inf
         best_orient = None
 
-        start_time = time.time()
+        run_start_time = time.time()
+        epoch_start_time = run_start_time
         run_hist = RunHistory()
-        epoch_start_time = start_time
 
         orients = OrientUtils.generate_uniform(self.num_samples)
         np.random.default_rng(run_config.seed).shuffle(orients, axis=0)
@@ -41,10 +41,11 @@ class UniformSampling(Algorithm):
             epoch_time = epoch_end_time - epoch_start_time
             epoch_start_time = epoch_end_time
             run_hist.add_epoch(epoch_time, lowest_loss)
-            if epoch_end_time - start_time > run_config.max_time:
+            if epoch_end_time - run_start_time > run_config.max_time:
                 break
 
-        return best_orient, run_hist
+        pred_position = ObjectPosition(best_orient, ref_location)
+        return pred_position, lowest_loss
 
 
 class IDUniformSampling(Algorithm):
@@ -56,13 +57,13 @@ class IDUniformSampling(Algorithm):
         ref_img: np.ndarray,
         ref_location: tuple[float, float, float],
         run_config: RunConfig,
-    ) -> tuple[tuple[float, float, float], RunHistory]:
+    ) -> tuple[ObjectPosition, RunHistory]:
         lowest_loss = np.inf
         best_orient = None
 
-        start_time = time.time()
+        run_start_time = time.time()
+        epoch_start_time = run_start_time
         run_hist = RunHistory()
-        epoch_start_time = start_time
 
         for epoch in range(run_config.max_epoch):
             orients = OrientUtils.generate_uniform((2 + epoch) ** 3)
@@ -76,7 +77,8 @@ class IDUniformSampling(Algorithm):
             epoch_time = epoch_end_time - epoch_start_time
             epoch_start_time = epoch_end_time
             run_hist.add_epoch(epoch_time, lowest_loss)
-            if epoch_end_time - start_time > run_config.max_time:
+            if epoch_end_time - run_start_time > run_config.max_time:
                 break
 
-            return best_orient, lowest_loss
+            pred_position = ObjectPosition(best_orient, ref_location)
+            return pred_position, lowest_loss

@@ -62,7 +62,7 @@ class Dataset:
         for i in range(0, len(self), batch_size):
             pos_batch = self[i : i + batch_size]
 
-            images = [view_sampler.get_view_cropped(pos, depth=depth)[0] for pos in pos_batch]
+            images = [view_sampler.get_view_cropped(pos, depth=depth) for pos in pos_batch]
             if depth:
                 images = [ImageUtils.depth2rgb(img) for img in images]
 
