@@ -83,6 +83,6 @@ class XorDiff(EvalFunc):
         diffs = np.abs(diffs)
 
         union_area = np.sum(mask_truth | mask_other)
-        norm = np.sum(np.power(diffs, self.p_norm)) / union_area
+        norm = np.sum(np.power(diffs / union_area, self.p_norm))
         loss = np.power(norm, 1 / self.p_norm) / self.penalty
         return loss
