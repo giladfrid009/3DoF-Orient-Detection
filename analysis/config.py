@@ -13,14 +13,15 @@ EVAL_DATASET = Dataset.create_random(location=OBJ_LOCATION, num_samples=100, see
 CAMERA_CONFIG = CameraConfig(location=(0, 0, 0.3), rotation=(np.pi / 2, 0, 0), fov=60)
 
 OBJECT_NAMES = [
-    "airplane",
+    "android",
+    "dino",
     "hammer",
-    "hand",
-    "headphones",
-    "mouse",
     "mug",
-    "stapler",
-    "toothpaste",
+    "nescafe",
+    "screwdriver",
+    "shoe",
+    "sofa",
+    "stack_rings",
 ]
 
 LOSS_NAMES = [
@@ -59,15 +60,17 @@ def create_loss_func(name: str) -> loss_funcs.LossFunc:
         return loss_funcs.VI()
 
 
+# TODO: fix
 XORDIFF_PENALTY = {
-    "airplane": 0.08,
-    "hammer": 0.11,
-    "hand": 0.06,
-    "headphones": 0.12,
-    "mouse": 0.06,
-    "mug": 0.06,
-    "stapler": 0.05,
-    "toothpaste": 0.06,
+    "android": 0.1,
+    "dino": 0.1,
+    "hammer": 0.1,
+    "mug": 0.1,
+    "nescafe": 0.1,
+    "screwdriver": 0.1,
+    "shoe": 0.1,
+    "sofa": 0.1,
+    "stack_rings": 0.1,
 }
 
 ALGORITHM_NAMES = [

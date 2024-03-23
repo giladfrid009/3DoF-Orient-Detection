@@ -17,9 +17,9 @@ class RunConfig:
 
 
 class RunHistory:
-    def __init__(self, epoch_time_list: list[float] = [], objective_loss_list: list[float] = []):
+    def __init__(self, epoch_time_list: list[float] = [], global_best_fit_list: list[float] = []):
         self.epoch_time_list: list[float] = epoch_time_list
-        self.objective_loss_list: list[float] = objective_loss_list
+        self.global_best_fit_list: list[float] = global_best_fit_list
 
     @property
     def num_epochs(self) -> int:
@@ -27,7 +27,7 @@ class RunHistory:
 
     def add_epoch(self, epoch_time: float, objective_loss: float):
         self.epoch_time_list.append(epoch_time)
-        self.objective_loss_list.append(objective_loss)
+        self.global_best_fit_list.append(objective_loss)
 
 
 class Algorithm(ABC):

@@ -8,12 +8,19 @@
         tolerance="1e-10"
         impratio="20">
         <flag
+            constraint="disable"
             equality="disable"
             frictionloss="disable"
             limit="disable"
+            contact="disable"
             passive="disable"
+            gravity="disable"
             clampctrl="disable"
+            warmstart="disable"
+            filterparent="disable"
             actuation="disable"
+            refsafe="disable"
+            midphase="disable"
             eulerdamp="disable" />
     </option>
     <size
@@ -37,7 +44,7 @@
             forcewidth="0.01"
         />
         <global
-            offwidth="1280"
+            offwidth="720"
             offheight="720" />
     </visual>
 

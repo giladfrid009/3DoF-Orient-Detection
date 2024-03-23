@@ -8,11 +8,11 @@
         o_friction="0 0 0 0 0"
         iterations="10">
         <flag
-            constraint="enable"
+            constraint="disable"
             equality="disable"
             frictionloss="disable"
             limit="disable"
-            contact="enable"
+            contact="disable"
             passive="disable"
             gravity="disable"
             clampctrl="disable"
@@ -30,7 +30,7 @@
 
     <visual>
         <global
-            offwidth="1280"
+            offwidth="720"
             offheight="720" />
         <quality
             shadowsize="2048" />
