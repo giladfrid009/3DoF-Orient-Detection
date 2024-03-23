@@ -51,3 +51,27 @@ class LogUtils:
             df_list.append(df)
 
         return pd.concat(df_list, axis=0, ignore_index=True)
+
+    @staticmethod
+    def to_stats_dataframe(log: EvalLog, add_params: bool = False) -> pd.DataFrame:
+        eval_losses = np.array(log.eval_loss_list)
+        median = np.median(eval_losses)
+        mean = np.mean(eval_losses)
+        std = np.std(eval_losses)
+        min_val = np.min(eval_losses)
+        max_val = np.max(eval_losses)
+
+        data = {
+            "alg": [log.alg_name],
+            "mean": [mean],
+            "median": [median],
+            "std": [std],
+            "min_val": [min_val],
+            "max_val": [max_val],
+        }
+
+        df = pd.DataFrame(data)
+        if add_params:
+            df = LogUtils._add_params(df, log)
+
+        return df

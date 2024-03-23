@@ -10,7 +10,7 @@ from eval import eval_funcs
 from eval.eval_log import EvalLog
 from eval.evaluator import Evaluator
 from utils.concurrent import TqdmPool
-import analysis.config as config
+import config
 
 
 def evaluate(
