@@ -73,14 +73,18 @@ class EvalFunc(ABC):
     def get_name(self) -> str:
         return type(self).__name__
 
+def generate_positions(count: int, location:tuple[float,float,float], seed:int=None) -> list[ObjectPosition]:
+    orients = OrientUtils.generate_random(count, seed)
+    positions = [ObjectPosition(orient, location) for orient in orients]
+    return positions
 
-def calculate_penalty(depth_viewer: ViewSampler, num_samples: int, seed: int = None) -> float:
-    positions1 = OrientUtils.generate_random(num_samples, seed)
-    positions2 = OrientUtils.generate_random(num_samples, seed)
+def calculate_penalty(depth_viewer: ViewSampler, num_samples: int, location:tuple[float,float,float], seed: int = None) -> float:
+    positions1 = generate_positions(num_samples, location, seed)
+    positions2 = generate_positions(num_samples, location, seed+1)
 
     total = 0
     count = 0
-
+    losses = []
     for pos1, pos2 in zip(positions1, positions2):
         depth1, _ = depth_viewer.get_view_cropped(pos1, depth=True)
         depth2, _ = depth_viewer.get_view_cropped(pos2, depth=True)
@@ -88,10 +92,15 @@ def calculate_penalty(depth_viewer: ViewSampler, num_samples: int, seed: int = N
         depth1 = ImageUtils.pad_to_shape(depth1, pad_shape, pad_value=0)
         depth2 = ImageUtils.pad_to_shape(depth2, pad_shape, pad_value=0)
         both = (depth1 > 0) & (depth2 > 0)
-        total += np.sum(np.abs(depth1[both] - depth2[both]))
-        count += np.sum(both)
+        # total += np.sum(np.abs(depth1[both] - depth2[both]))
+        # count += np.sum(both)
+        if np.sum(both) == 0:
+            losses.append(0)
+            continue
+        losses.append(np.max(np.abs(depth1[both] - depth2[both])))
 
-    penalty = total / count
+    # penalty = total / count
+    penalty = np.mean(losses)
     return penalty
 
 
@@ -112,6 +121,8 @@ class XorDiff(EvalFunc):
         diffs = np.abs(diffs)
 
         union_area = np.sum(mask_truth | mask_other)
+        if union_area == 0:
+            print(f"ERROR::XorDiff::union_area = {union_area}")
         norm = np.sum(np.power(diffs, self.p_norm)) / union_area
         loss = np.power(norm, 1 / self.p_norm) / self.penalty
         return loss

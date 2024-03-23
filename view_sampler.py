@@ -79,3 +79,11 @@ class ViewSampler:
 
     def close(self):
         self.simulator.close()
+
+
+def create_viewer(obj_name: str, camera_config: CameraConfig, is_sim: bool = True)->ViewSampler:
+    if is_sim:
+        viewer = ViewSampler(f"data/{obj_name}/world_sim.xml", camera_config)
+    else:
+        viewer = ViewSampler(f"data/{obj_name}/world.xml", camera_config)
+    return viewer

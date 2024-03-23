@@ -1,7 +1,7 @@
 import os
 from evaluate.eval_log import EvalLog
 import pandas as pd
-
+import shutil
 
 class Files:
     def __init__(
@@ -50,6 +50,12 @@ class Files:
 
     def __len__(self) -> int:
         return len(self.results)
+    
+    def __contains__(self, item):
+        file_list = [f for f in self]
+        if item in file_list:
+            return True
+        return False
 
     def get_filename(self) -> str:
         return self.results[self._pos].name
@@ -61,6 +67,9 @@ class Files:
         if 0 <= pos < self.__len__():
             self._pos = pos - 1
             return self.__next__()
+        
+    def copy(self, dst:str)->None:
+        shutil.copy2(self.get_path(), dst)
 
 
 class LogFiles(Files):
@@ -68,6 +77,12 @@ class LogFiles(Files):
         self, directory: str, extention: str = ".pickle", scan_dirs: bool = False, return_full_path: bool = True
     ) -> None:
         super().__init__(directory, extention, scan_dirs, return_full_path)
+
+    def __contains__(self, item:str):
+        for file in self:
+            if item in file:
+                return True
+        return False
 
     def _load(self) -> EvalLog:
         return EvalLog.load(self.get_path())
@@ -79,3 +94,7 @@ class LogFiles(Files):
     def trajectory_dataframe(self, sample_id: int, add_params: bool = False) -> pd.DataFrame:
         log = self._load()
         return log.trajectory_dataframe(sample_id, add_params)
+
+    def eval_stats_dataframe(self, add_params: bool = False) -> pd.DataFrame:
+        log = self._load()
+        return log.eval_stats_dataframe(add_params)
