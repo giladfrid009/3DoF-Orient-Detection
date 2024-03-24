@@ -14,12 +14,14 @@ import config
 import loss_funcs
 import mealpy
 
+
 def evaluate(
     alg_name: str,
     run_config: RunConfig,
     obj_name: str,
     eval_data: Iterable[ObjectPosition],
     log_folder: str,
+    alg_config:dict,
 ):
     try:
 
@@ -28,10 +30,11 @@ def evaluate(
             ViewSampler(f"data/{obj_name}/world_sim.xml", config.CAMERA_CONFIG) as sim_viewer,
         ):
             alg = MealAlgorithm(sim_viewer, loss_funcs.IOU(), mealpy.get_optimizer_by_name(alg_name)())
+            alg.optimizer.set_parameters(alg_config)
             # alg = config.create_algorithm(alg_name, sim_viewer)
             log = EvalLog(alg)
             eval_func = eval_funcs.XorDiff(config.XORDIFF_PENALTY[obj_name])
-            evaluator = Evaluator(world_viewer, sim_viewer, eval_func=eval_func, silent=False)
+            evaluator = Evaluator(world_viewer, sim_viewer, eval_func=eval_func, silent=True)
             evaluator.evaluate(alg, run_config, eval_data, log)
             log.save(log_folder)
 

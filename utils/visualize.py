@@ -8,7 +8,7 @@ from collections import defaultdict, deque
 from abc import ABC, abstractmethod
 from scipy.spatial.transform import Rotation
 
-plt.use("TkAgg")
+# plt.use("TkAgg")
 
 
 class PlotterBase(ABC):

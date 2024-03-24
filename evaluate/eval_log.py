@@ -47,8 +47,9 @@ class EvalLog:
             "pred_pos": [*self.pred_position_list],
         }
         if add_params:
-            for param, value in self.alg_params.items():
-                data[param] = [*([value] * n_samples)]
+            data["params"] = str(self.alg_params)
+            # for param, value in self.alg_params.items():
+            #     data[param] = [*([value] * n_samples)]
 
         return pd.DataFrame(data)
 
@@ -105,8 +106,9 @@ class EvalLog:
             "max_val": [max_val],
         }
         if add_params:
-            for param, value in self.alg_params.items():
-                data[param] = [value]
+            data["params"] = str(self.alg_params)
+            # for param, value in self.alg_params.items():
+            #     data[param] = [value]
 
         return pd.DataFrame(data)
 

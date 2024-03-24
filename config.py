@@ -87,25 +87,75 @@ ALGORITHM_NAMES = [
 ]
 
 
+TUNING_ALGORITHM_NAMES = [
+    mealpy.physics_based.SA.SwarmSA.__name__,
+    mealpy.swarm_based.FFA.OriginalFFA.__name__,
+    mealpy.human_based.ICA.OriginalICA.__name__,
+    mealpy.swarm_based.SCSO.OriginalSCSO.__name__,
+    mealpy.swarm_based.SFO.ImprovedSFO.__name__,
+    mealpy.swarm_based.MPA.OriginalMPA.__name__,
+    mealpy.system_based.WCA.OriginalWCA.__name__,
+    mealpy.system_based.AEO.AugmentedAEO.__name__,
+    #classics
+    mealpy.evolutionary_based.GA.BaseGA.__name__,
+    mealpy.evolutionary_based.DE.OriginalDE.__name__,
+    mealpy.math_based.HC.OriginalHC.__name__,
+    mealpy.swarm_based.PSO.OriginalPSO.__name__,
+    UniformSampling.__name__,
+]
+
+ALGORITHM_PARAMS = {
+    "SwarmSA": {
+        't0': [500, 1000, 2000],
+        'mutation_rate': [0.1, 0.02],
+        'mutation_step_size': [0.1, 0.15]
+        },
+
+    "OriginalFFA": {
+        'gamma': [0.001, 0.005],
+        'alpha': [0.2, 0.05, 0.5],
+        },
+    "OriginalICA": {
+        'empire_count': [7, 10],
+        'revolution_prob': [0.4, 0.2],
+        'revolution_rate': [0.1, 0.2],
+        'revolution_step_size': [0.1, 0.2, 0.05],
+        },
+    "ImprovedSFO": {
+        'pp': [0.1, 0.2, 0.05, 0.5],
+        },
+    "OriginalWCA": {
+        'nsr': [4, 7, 10], 
+        'wc': [1.5, 2.0, 2.5], 
+        'dmax': [1e-06, 1e-5, 1e-4]
+        },
+    "BaseGA": {
+        'pc': [0.95, 0.98, 0.9], 
+        'pm': [0.025, 0.1, 0.01],
+        },
+    "OriginalDE": {
+        'wf': [0.1, 0.2], 
+        'cr': [0.9, 0.75], 
+        'strategy': range(6)
+        },
+    "OriginalHC": {
+        'neighbour_size': [50, 150, 400, 700, 850], 
+        },
+    "OriginalPSO": {
+        'c1': [2.05, 1],
+        'c2': [2.05, 1],
+        'w': [0.4, 0.3]
+        },
+}
+
+
 def create_algorithm(
     name: str,
     sim_viewer: ViewSampler,
     loss_func=loss_funcs.IOU(),
 ) -> Algorithm:
     if name == mealpy.PSO.OriginalPSO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.PSO.OriginalPSO(c1=1, c2=2.05, w=0.2))
-    elif name == mealpy.MSA.OriginalMSA.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.MSA.OriginalMSA())
-    elif name == mealpy.SCSO.OriginalSCSO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.SCSO.OriginalSCSO())
-    elif name == mealpy.SA.OriginalSA.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.SA.OriginalSA())
-    elif name == mealpy.EVO.OriginalEVO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.EVO.OriginalEVO())
-    elif name == mealpy.EFO.DevEFO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.EFO.DevEFO())
-    elif name == mealpy.EO.ModifiedEO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.EO.ModifiedEO())
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.PSO.OriginalPSO(c1=2.05, c2=1, w=0.3))
     elif name == mealpy.ICA.OriginalICA.__name__:
         return MealAlgorithm(
             sim_viewer,
@@ -114,28 +164,55 @@ def create_algorithm(
                 empire_count=7,
                 assimilation_coeff=1.5,
                 revolution_prob=0.4,
-                revolution_rate=0.05,
-                revolution_step_size=0.175,
+                revolution_rate=0.1,
+                revolution_step_size=0.05,
             ),
         )
+    elif name == mealpy.HC.OriginalHC.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.HC.OriginalHC(neighbour_size=850))
+    elif name == mealpy.physics_based.SA.SwarmSA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.physics_based.SA.SwarmSA(t0=1000, t1=1, mutation_rate=0.1, mutation_step_size=0.1))
+    elif name == mealpy.DE.OriginalDE.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.DE.OriginalDE(wf=0.2, cr=0.9, strategy=2))
+    elif name == mealpy.swarm_based.FFA.OriginalFFA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.swarm_based.FFA.OriginalFFA(gamma=0.005, alpha=0.2))
+    elif name == mealpy.GA.BaseGA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.GA.BaseGA(pc=0.9, pm=0.1))    
+    elif name == mealpy.system_based.WCA.OriginalWCA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.system_based.WCA.OriginalWCA(nsr=4,wc=2.5,dmax=1e-5))    
+    elif name == mealpy.swarm_based.SFO.ImprovedSFO.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.swarm_based.SFO.ImprovedSFO())
+    elif name == mealpy.SCSO.OriginalSCSO.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.SCSO.OriginalSCSO())
+    elif name == mealpy.swarm_based.MPA.OriginalMPA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.swarm_based.MPA.OriginalMPA())
+    elif name == mealpy.system_based.AEO.AugmentedAEO.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.system_based.AEO.AugmentedAEO())
+    elif name == UniformSampling.__name__:
+        return UniformSampling(sim_viewer, loss_func, num_samples=600, epoch_size=50)
+
+
+    # Deprecated..
+    elif name == mealpy.MSA.OriginalMSA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.MSA.OriginalMSA())
+    elif name == mealpy.SA.OriginalSA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.SA.OriginalSA())
+    elif name == mealpy.EVO.OriginalEVO.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.EVO.OriginalEVO())
+    elif name == mealpy.EFO.DevEFO.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.EFO.DevEFO())
+    elif name == mealpy.EO.ModifiedEO.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.EO.ModifiedEO())
     elif name == mealpy.FBIO.DevFBIO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.FBIO.DevFBIO())
     elif name == mealpy.SARO.OriginalSARO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.SARO.OriginalSARO(se=0.5, mu=5))
-    elif name == mealpy.GA.BaseGA.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.GA.BaseGA())
     elif name == mealpy.CRO.OCRO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.CRO.OCRO())
-    elif name == mealpy.DE.OriginalDE.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.DE.OriginalDE(strategy=0))
     elif name == mealpy.PSS.OriginalPSS.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.PSS.OriginalPSS(acceptance_rate=0.925))
     elif name == mealpy.SCA.DevSCA.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.SCA.DevSCA())
-    elif name == mealpy.HC.OriginalHC.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.HC.OriginalHC(neighbour_size=200))
-    elif name == UniformSampling.__name__:
-        return UniformSampling(sim_viewer, loss_func, num_samples=600, epoch_size=50)
     elif name == IDUniformSampling.__name__:
         return IDUniformSampling(sim_viewer, loss_func)
     elif name == RandomSampling.__name__:
