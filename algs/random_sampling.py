@@ -41,4 +41,4 @@ class RandomSampling(Algorithm):
                 break
 
         pred_position = ObjectPosition(best_orient, ref_location)
-        return pred_position, lowest_loss
+        return pred_position, run_hist

@@ -55,6 +55,7 @@ class Dataset:
         view_sampler: ViewSampler,
         depth: bool = False,
         batch_size: int = 9,
+        annotate: bool = True,
     ):
         nrows = math.ceil(math.sqrt(batch_size))
         ncols = math.ceil(batch_size / nrows)
@@ -72,17 +73,18 @@ class Dataset:
 
             images = [cv.cvtColor(img, cv.COLOR_RGB2BGR) for img in images]
 
-            for j, img in enumerate(images):
-                cv.putText(
-                    img,
-                    "img #{}".format(i + j),
-                    (0, 12),
-                    cv.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.5,
-                    color=(255, 255, 255),
-                    thickness=1,
-                    lineType=2,
-                )
+            if annotate:
+                for j, img in enumerate(images):
+                    cv.putText(
+                        img,
+                        "img #{}".format(i + j),
+                        (0, 12),
+                        cv.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.5,
+                        color=(255, 255, 255),
+                        thickness=1,
+                        lineType=2,
+                    )
 
             # make sure array of images is exactly nrows x ncols
             if len(images) < batch_size:

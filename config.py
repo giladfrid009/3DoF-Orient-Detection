@@ -127,8 +127,12 @@ def create_algorithm(
                 revolution_step_size=0.175,
             ),
         )
+    elif name == mealpy.FFA.OriginalFFA.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.FFA.OriginalFFA())
     elif name == mealpy.FBIO.DevFBIO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.FBIO.DevFBIO())
+    elif name == mealpy.AEO.AugmentedAEO.__name__:
+        return MealAlgorithm(sim_viewer, loss_func, mealpy.AEO.AugmentedAEO())
     elif name == mealpy.SARO.OriginalSARO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.SARO.OriginalSARO(se=0.5, mu=5))
     elif name == mealpy.GA.BaseGA.__name__:
