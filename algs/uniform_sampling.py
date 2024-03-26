@@ -31,8 +31,8 @@ class UniformSampling(Algorithm):
 
         orients = OrientUtils.generate_uniform(self.num_samples)
         np.random.default_rng(run_config.seed).shuffle(orients, axis=0)
-        
-        num_epochs = max(math.ceil(self.num_samples / self.epoch_size), run_config.max_epoch)
+
+        num_epochs = min(math.ceil(self.num_samples / self.epoch_size), run_config.max_epoch)
         for epoch in tqdm(range(num_epochs), enable=not run_config.silent):
             for test_orient in orients[epoch * self.epoch_size : (epoch + 1) * self.epoch_size]:
                 loss = self.calc_loss(ref_location, ref_img, test_orient)

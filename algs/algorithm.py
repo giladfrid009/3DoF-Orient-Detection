@@ -17,9 +17,14 @@ class RunConfig:
 
 
 class RunHistory:
-    def __init__(self, epoch_time_list: list[float] = [], global_best_fit_list: list[float] = []):
-        self.epoch_time_list: list[float] = epoch_time_list
-        self.global_best_fit_list: list[float] = global_best_fit_list
+    def __init__(self, epoch_time_list: list[float] = None, global_best_fit_list: list[float] = None):
+        if epoch_time_list is None:
+            epoch_time_list = []
+        if global_best_fit_list is None:
+            global_best_fit_list = []
+            
+        self.epoch_time_list = epoch_time_list
+        self.global_best_fit_list = global_best_fit_list
 
     @property
     def num_epochs(self) -> int:
