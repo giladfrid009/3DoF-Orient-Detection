@@ -1,0 +1,15 @@
+\begin{tabular}{lrrr}
+\toprule
+ & spearman & kendalltau & pearson \\
+\midrule
+IOU & 0.53 & 0.41 & 0.63 \\
+MSE & 0.26 & 0.18 & 0.31 \\
+RMSE & 0.39 & 0.29 & 0.47 \\
+NMI & 0.45 & 0.34 & 0.61 \\
+PSNR & 0.26 & 0.18 & 0.36 \\
+SSIM & 0.15 & 0.11 & 0.21 \\
+Hausdorff & 0.56 & 0.43 & 0.53 \\
+ARE & 0.36 & 0.25 & 0.43 \\
+VI & 0.27 & 0.19 & 0.34 \\
+\bottomrule
+\end{tabular}

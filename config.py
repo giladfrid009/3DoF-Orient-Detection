@@ -8,7 +8,8 @@ from evaluate.dataset import Dataset
 
 OBJ_LOCATION = (0, 1.3, 0.3)
 
-EVAL_DATASET = Dataset.load("AllOptimizersDataset.pkl")# Dataset.create_random(location=OBJ_LOCATION, num_samples=100, seed=0)
+EVAL_DATASET = Dataset.load("EvalDataset2.pkl")# Dataset.create_random(location=OBJ_LOCATION, num_samples=100, seed=0)
+TEST_DATASET = Dataset.load("AllOptimizersDataset.pkl")
 
 CAMERA_CONFIG = CameraConfig(location=(0, 0, 0.3), rotation=(np.pi / 2, 0, 0), fov=60)
 
@@ -63,39 +64,15 @@ XORDIFF_PENALTY = {
     'stack_rings': 0.38177377
  }
 
-
 ALGORITHM_NAMES = [
-    mealpy.swarm_based.PSO.OriginalPSO.__name__,
-    mealpy.swarm_based.MSA.OriginalMSA.__name__,
-    mealpy.swarm_based.SCSO.OriginalSCSO.__name__,
-    mealpy.physics_based.SA.OriginalSA.__name__,
-    mealpy.physics_based.EVO.OriginalEVO.__name__,
-    mealpy.physics_based.EFO.DevEFO.__name__,
-    mealpy.physics_based.EO.ModifiedEO.__name__,
-    mealpy.human_based.ICA.OriginalICA.__name__,
-    mealpy.human_based.FBIO.DevFBIO.__name__,
-    mealpy.human_based.SARO.OriginalSARO.__name__,
-    mealpy.evolutionary_based.GA.BaseGA.__name__,
-    mealpy.evolutionary_based.CRO.OCRO.__name__,
-    mealpy.evolutionary_based.DE.OriginalDE.__name__,
-    mealpy.math_based.PSS.OriginalPSS.__name__,
-    mealpy.math_based.SCA.DevSCA.__name__,
-    mealpy.math_based.HC.OriginalHC.__name__,
-    UniformSampling.__name__,
-    IDUniformSampling.__name__,
-    RandomSampling.__name__,
-]
-
-
-TUNING_ALGORITHM_NAMES = [
     mealpy.physics_based.SA.SwarmSA.__name__,
-    mealpy.swarm_based.FFA.OriginalFFA.__name__,
+    # mealpy.swarm_based.FFA.OriginalFFA.__name__,
     mealpy.human_based.ICA.OriginalICA.__name__,
     mealpy.swarm_based.SCSO.OriginalSCSO.__name__,
     mealpy.swarm_based.SFO.ImprovedSFO.__name__,
     mealpy.swarm_based.MPA.OriginalMPA.__name__,
-    mealpy.system_based.WCA.OriginalWCA.__name__,
-    mealpy.system_based.AEO.AugmentedAEO.__name__,
+    # mealpy.system_based.WCA.OriginalWCA.__name__,
+    # mealpy.system_based.AEO.AugmentedAEO.__name__,
     #classics
     mealpy.evolutionary_based.GA.BaseGA.__name__,
     mealpy.evolutionary_based.DE.OriginalDE.__name__,
@@ -189,33 +166,6 @@ def create_algorithm(
     elif name == mealpy.system_based.AEO.AugmentedAEO.__name__:
         return MealAlgorithm(sim_viewer, loss_func, mealpy.system_based.AEO.AugmentedAEO())
     elif name == UniformSampling.__name__:
-        return UniformSampling(sim_viewer, loss_func, num_samples=600, epoch_size=50)
-
-
-    # Deprecated..
-    elif name == mealpy.MSA.OriginalMSA.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.MSA.OriginalMSA())
-    elif name == mealpy.SA.OriginalSA.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.SA.OriginalSA())
-    elif name == mealpy.EVO.OriginalEVO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.EVO.OriginalEVO())
-    elif name == mealpy.EFO.DevEFO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.EFO.DevEFO())
-    elif name == mealpy.EO.ModifiedEO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.EO.ModifiedEO())
-    elif name == mealpy.FBIO.DevFBIO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.FBIO.DevFBIO())
-    elif name == mealpy.SARO.OriginalSARO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.SARO.OriginalSARO(se=0.5, mu=5))
-    elif name == mealpy.CRO.OCRO.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.CRO.OCRO())
-    elif name == mealpy.PSS.OriginalPSS.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.PSS.OriginalPSS(acceptance_rate=0.925))
-    elif name == mealpy.SCA.DevSCA.__name__:
-        return MealAlgorithm(sim_viewer, loss_func, mealpy.SCA.DevSCA())
-    elif name == IDUniformSampling.__name__:
-        return IDUniformSampling(sim_viewer, loss_func)
-    elif name == RandomSampling.__name__:
-        return RandomSampling(sim_viewer, loss_func, epoch_size=50)
+        return UniformSampling(sim_viewer, loss_func, num_samples=10000, epoch_size=50)
     else:
         raise ValueError(f"Unknown algorithm: {name}")

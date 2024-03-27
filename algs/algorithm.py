@@ -17,9 +17,16 @@ class RunConfig:
 
 
 class RunHistory:
-    def __init__(self, epoch_time_list: list[float] = [], objective_loss_list: list[float] = []):
-        self.epoch_time_list: list[float] = epoch_time_list
-        self.objective_loss_list: list[float] = objective_loss_list
+    def __init__(self, epoch_time_list: list[float] = None, objective_loss_list: list[float] = None):
+        if epoch_time_list is None:
+            self.epoch_time_list = []
+        else:
+            self.epoch_time_list: list[float] = epoch_time_list
+        
+        if objective_loss_list is None:
+            self.objective_loss_list = []
+        else:
+            self.objective_loss_list: list[float] = objective_loss_list
 
     @property
     def num_epochs(self) -> int:

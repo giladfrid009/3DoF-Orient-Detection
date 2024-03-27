@@ -21,7 +21,6 @@ def evaluate(
     obj_name: str,
     eval_data: Iterable[ObjectPosition],
     log_folder: str,
-    alg_config:dict,
 ):
     try:
 
@@ -29,9 +28,8 @@ def evaluate(
             ViewSampler(f"data/{obj_name}/world.xml", config.CAMERA_CONFIG) as world_viewer,
             ViewSampler(f"data/{obj_name}/world_sim.xml", config.CAMERA_CONFIG) as sim_viewer,
         ):
-            alg = MealAlgorithm(sim_viewer, loss_funcs.IOU(), mealpy.get_optimizer_by_name(alg_name)())
-            alg.optimizer.set_parameters(alg_config)
-            # alg = config.create_algorithm(alg_name, sim_viewer)
+            # alg = MealAlgorithm(sim_viewer, loss_funcs.IOU(), mealpy.get_optimizer_by_name(alg_name)())
+            alg = config.create_algorithm(alg_name, sim_viewer)
             log = EvalLog(alg)
             eval_func = eval_funcs.XorDiff(config.XORDIFF_PENALTY[obj_name])
             evaluator = Evaluator(world_viewer, sim_viewer, eval_func=eval_func, silent=True)

@@ -98,3 +98,7 @@ class LogFiles(Files):
     def eval_stats_dataframe(self, add_params: bool = False) -> pd.DataFrame:
         log = self._load()
         return log.eval_stats_dataframe(add_params)
+    
+    def history_dataframe(self, add_params=False):
+        log = self._load()
+        return log.history_dataframe(add_params)

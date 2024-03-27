@@ -6,7 +6,7 @@ from utils.orient import OrientUtils
 from algs.algorithm import *
 from view_sampler import ViewSampler
 from loss_funcs import *
-
+import math
 
 class UniformSampling(Algorithm):
     def __init__(self, test_viewer: ViewSampler, loss_func: LossFunc, num_samples: int = 1000, epoch_size: int = 50):
@@ -29,8 +29,9 @@ class UniformSampling(Algorithm):
 
         orients = OrientUtils.generate_uniform(self.num_samples)
         np.random.default_rng(run_config.seed).shuffle(orients, axis=0)
-
-        for epoch in range(run_config.max_epoch):
+        # print(f"len(orients): {len(orients)}")
+        num = math.ceil(len(orients)/self.epoch_size)
+        for epoch in range(min(run_config.max_epoch, num)):
             for test_orient in orients[epoch * self.epoch_size : (epoch + 1) * self.epoch_size]:
                 loss = self.calc_loss(ref_location, ref_img, test_orient)
                 if loss < lowest_loss:
@@ -39,6 +40,7 @@ class UniformSampling(Algorithm):
 
             epoch_end_time = time.time()
             epoch_time = epoch_end_time - epoch_start_time
+            # print(f"time: {epoch_end_time - start_time}")
             epoch_start_time = epoch_end_time
             run_hist.add_epoch(epoch_time, lowest_loss)
             if epoch_end_time - start_time > run_config.max_time:
