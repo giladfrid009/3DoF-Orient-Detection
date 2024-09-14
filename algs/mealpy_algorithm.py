@@ -17,9 +17,7 @@ class MealTermination(mealpy.Termination):
     def should_terminate(self, current_epoch, current_fe, current_time, current_threshold):
         # Check maximum number of generations
         if self.max_epoch is not None and current_epoch >= self.max_epoch:
-            self.message = (
-                "Stopping criterion with maximum number of epochs/generations/iterations (MG) occurred. End program!"
-            )
+            self.message = "Stopping criterion with maximum number of epochs/generations/iterations (MG) occurred. End program!"
             return True
         # Check maximum number of function evaluations
         if self.max_fe is not None and current_fe >= self.max_fe:
@@ -27,13 +25,13 @@ class MealTermination(mealpy.Termination):
             return True
         # Check maximum time
         if self.max_time is not None and current_time - self.start_time >= self.max_time:
-            self.message = (
-                "Stopping criterion with maximum running time/time bound (TB) (seconds) occurred. End program!"
-            )
+            self.message = "Stopping criterion with maximum running time/time bound (TB) (seconds) occurred. End program!"
             return True
         # Check early stopping
         if self.max_early_stop is not None and current_threshold >= self.max_early_stop:
-            self.message = "Stopping criterion with early stopping (ES) (fitness-based) occurred. End program!"
+            self.message = (
+                "Stopping criterion with early stopping (ES) (fitness-based) occurred. End program!"
+            )
             return True
         return False
 
